@@ -15,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag hemant19092/mytest-nginx:v1
+      run: docker build . --file Dockerfile --tag hemant19092/mytest-nginx:v2
     - name: docker login
       run: docker login --username=hemant19092 --password=hemant1992
     - name: docker push  
-      run: docker push hemant19092/mytest-nginx:v1
+      run: docker push hemant19092/mytest-nginx:v2
       
