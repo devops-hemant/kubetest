@@ -33,6 +33,7 @@ jobs:
           push: true
           tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_aa9c30734c4d4606bc33f2381b7a2519 }}/hemant19092/mytest-nginx:${{ github.sha }}
           file: ./Dockerfile
+
   deploy:
       runs-on: ubuntu-latest
       needs: build
