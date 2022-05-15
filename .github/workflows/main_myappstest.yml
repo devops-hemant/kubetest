@@ -11,7 +11,6 @@ on:
 
 jobs:
   build:
-<<<<<<< HEAD
     runs-on: ubuntu-latest
 
     steps:
@@ -24,18 +23,17 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: https://index.docker.io/v1/
-          username: ${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}
-          password: ${{ secrets.AzureAppService_ContainerPassword_27e2f07347144db59466c1ac587675ec }}
+          username: ${{ secrets.AzureAppService_ContainerUsername_aa9c30734c4d4606bc33f2381b7a2519 }}
+          password: ${{ secrets.AzureAppService_ContainerPassword_387d3cafcd0741e2ab48b0d23f3eb8f6 }}
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}/hemant19092/mytest-nginx:${{ github.sha }}
+          tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_aa9c30734c4d4606bc33f2381b7a2519 }}/hemant19092/mytest-nginx:${{ github.sha }}
           file: ./Dockerfile
-
-    deploy:
+  deploy:
       runs-on: ubuntu-latest
       needs: build
       environment:
@@ -49,45 +47,5 @@ jobs:
           with:
             app-name: 'myappstest'
             slot-name: 'production'
-            publish-profile: ${{ secrets.AzureAppService_PublishProfile_e3f2e457b7134906a72ece130ba3d497 }}
-            images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}/hemant19092/mytest-nginx:${{ github.sha }}'
-=======
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Log in to registry
-      uses: docker/login-action@v1
-      with:
-        registry: https://index.docker.io/v1/
-        username: ${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_27e2f07347144db59466c1ac587675ec }}
-
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}/hemant19092/mytest-nginx:${{ github.sha }}
-        file: ./Dockerfile
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'myappstest'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_e3f2e457b7134906a72ece130ba3d497 }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_1366cb26f735415a8acbe7063dfc5641 }}/hemant19092/mytest-nginx:${{ github.sha }}'
->>>>>>> d9aecd956487b98cc62c959e16367d2c940270fb
+            publish-profile: ${{ secrets.AzureAppService_PublishProfile_7c7809552a2140d1af5d118cd3bc3be8 }}
+            images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_aa9c30734c4d4606bc33f2381b7a2519 }}/hemant19092/mytest-nginx:${{ github.sha }}'
