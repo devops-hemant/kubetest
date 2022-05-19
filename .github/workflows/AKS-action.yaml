@@ -39,7 +39,7 @@ env:
   RESOURCE_GROUP: "RG1"
   CLUSTER_NAME: "hsk8s"
   IMAGE_PULL_SECRET_NAME: "k8ssecret"
-  DEPLOYMENT_MANIFEST_PATH: 'manifest/'
+  DEPLOYMENT_MANIFEST_PATH: 'manifests'
 
 jobs:
   buildImage:
@@ -137,7 +137,9 @@ jobs:
       uses: Azure/k8s-deploy@v3.1
       with:
         action: deploy
-        manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
+        manifests: | 
+          ${{ env.DEPLOYMENT_MANIFEST_PATH }}/deployment.yml
+          ${{ env.DEPLOYMENT_MANIFEST_PATH }}/service.yml          
         images: |
           ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
         imagepullsecrets: |
