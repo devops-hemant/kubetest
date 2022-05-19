@@ -35,11 +35,11 @@ on:
 
 env:
   AZURE_CONTAINER_REGISTRY: "HSk8stest"
-  CONTAINER_NAME: "hsk8stest.azurecr.io/nginx:latest"
+  CONTAINER_NAME: "nginx"
   RESOURCE_GROUP: "RG1"
   CLUSTER_NAME: "hsk8s"
   IMAGE_PULL_SECRET_NAME: "k8ssecret"
-  DEPLOYMENT_MANIFEST_PATH: 'manifest/*'
+  DEPLOYMENT_MANIFEST_PATH: '/manifest/*'
 
 jobs:
   buildImage:
@@ -62,7 +62,7 @@ jobs:
     # Builds and pushes an image up to your Azure Container Registry
     - name: Build and push image to ACR
       run: |
-        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} .
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} .
 
   createSecret:
     permissions:
