@@ -39,7 +39,7 @@ env:
   RESOURCE_GROUP: "RG1"
   CLUSTER_NAME: "hsk8s"
   IMAGE_PULL_SECRET_NAME: "k8ssecret"
-  DEPLOYMENT_MANIFEST_PATH: '.github/workflows/AKS-action.yaml'
+  DEPLOYMENT_MANIFEST_PATH: 'manifest/*'
 
 jobs:
   buildImage:
