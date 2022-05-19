@@ -34,7 +34,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_CONTAINER_REGISTRY: "HSk8stest"
+  AZURE_CONTAINER_REGISTRY: "hsk8stest"
   CONTAINER_NAME: "nginx"
   RESOURCE_GROUP: "RG1"
   CLUSTER_NAME: "hsk8s"
