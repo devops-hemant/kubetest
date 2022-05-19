@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: hsk8stest.azurecr.io
+        username: ${{ secrets.acr_hsk8stest_username }}
+        password: ${{ secrets.acr_hsk8stest_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t hsk8stest.azurecr.io/hsk8s:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push hsk8stest.azurecr.io/hsk8s:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_hsk8s_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep hsk8sa5d9 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace hsk8sa5d9`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: hsk8sa5d9
+        container-registry-url: hsk8stest.azurecr.io
+        container-registry-username: ${{ secrets.acr_hsk8stest_username }}
+        container-registry-password: ${{ secrets.acr_hsk8stest_password }}
+        secret-name: hsk8sdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: hsk8sa5d9
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          hsk8stest.azurecr.io/hsk8s:${{ github.sha }}
+        imagepullsecrets: |
+          hsk8sdockerauth
