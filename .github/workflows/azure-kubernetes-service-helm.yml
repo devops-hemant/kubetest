@@ -39,12 +39,13 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
-  CONTAINER_NAME: "your-container-name"
-  RESOURCE_GROUP: "your-resource-group"
-  CLUSTER_NAME: "your-cluster-name"
-  IMAGE_PULL_SECRET_NAME: "your-image-pull-secret-name"
-  CHART_PATH: "your-chart-path"
+  AZURE_CONTAINER_REGISTRY: "hsk8stest"
+  CONTAINER_NAME: "nginx"
+  RESOURCE_GROUP: "RG1"
+  CLUSTER_NAME: "hsk8s"
+  IMAGE_PULL_SECRET_NAME: "k8ssecret"
+  DEPLOYMENT_MANIFEST_PATH: 'manifests'
+  CHART_PATH: "jenkins"
   CHART_OVERRIDE_PATH: "your-chart-override-path"
 
 jobs:
@@ -141,7 +142,7 @@ jobs:
       with:
         renderEngine: 'helm'
         helmChart: ${{ env.CHART_PATH }}
-        overrideFiles: ${{ env.CHART_OVERRIDE_PATH }}
+       # overrideFiles: ${{ env.CHART_OVERRIDE_PATH }}
         overrides: |     
           replicas:2
         helm-version: 'latest' 
