@@ -45,8 +45,8 @@ env:
   CLUSTER_NAME: "hsk8s"
   IMAGE_PULL_SECRET_NAME: "k8ssecret"
   DEPLOYMENT_MANIFEST_PATH: 'manifests'
-  CHART_PATH: "jenkins"
-  CHART_OVERRIDE_PATH: "your-chart-override-path"
+  CHART_PATH: "grafana/Chart.yaml"
+  #CHART_OVERRIDE_PATH: "your-chart-override-path"
 
 jobs:
   buildImage:
