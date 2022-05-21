@@ -139,6 +139,6 @@ jobs:
         action: deploy
         manifests: | 
           ${{ env.DEPLOYMENT_MANIFEST_PATH }}/deployment.yml
-          ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+          ${{ env.DEPLOYMENT_MANIFEST_PATH }}/service.yml
         imagepullsecrets: |
           ${{ env.IMAGE_PULL_SECRET_NAME }}
