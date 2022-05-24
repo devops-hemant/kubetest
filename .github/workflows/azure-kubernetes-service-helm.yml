@@ -119,7 +119,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    #needs: [buildImage, createSecret]
+    needs: [buildImage, createSecret]
     steps:
     # Logs in with your Azure credentials
     - uses: actions/checkout@master
