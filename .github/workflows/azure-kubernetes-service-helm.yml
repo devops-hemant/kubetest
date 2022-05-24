@@ -46,7 +46,7 @@ env:
   IMAGE_PULL_SECRET_NAME: "k8ssecret"
   DEPLOYMENT_MANIFEST_PATH: 'manifests'
   CHART_PATH: "grafana"
-  #CHART_OVERRIDE_PATH: "your-chart-override-path"
+  #CHART_OVERRIDE_PATH: "grafana/values.yaml"
 
 jobs:
   buildImage:
@@ -122,6 +122,7 @@ jobs:
     needs: [buildImage, createSecret]
     steps:
     # Logs in with your Azure credentials
+    - uses: actions/checkout@master
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
