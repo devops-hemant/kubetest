@@ -1,9 +1,8 @@
 name: auto stop azure resources
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+  - cron: "30 4 * * 6"
   workflow_dispatch:
 
 env:
@@ -44,5 +43,5 @@ jobs:
       run: |
         kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
         krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        echo "Starting Azure AKS cluster $kcluster"
+        echo "Stopping Azure AKS cluster $kcluster"
         az aks stop -g $krg -n $kcluster
