@@ -6,20 +6,20 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  VM_TAG_KEY: "app"
-  VM_TAG_VLAUE: "nginx"
-
+# env:
+#   VM_TAG_KEY: "app"
+#   VM_TAG_VLAUE: "nginx"
+#test test
 
 jobs:
-  buildImage:
+  azureResourcesStop:
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
     steps:
     # Checks out the repository this file is in
-    - uses: actions/checkout@v3
+    #- uses: actions/checkout@v3
     
     # Logs in with your Azure credentials
     - name: Azure login
@@ -29,9 +29,10 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-    # Builds and pushes an image up to your Azure Container Registry
+    # Run commads to stop the azure resources
     - name: stop_azure_vm
       run: |
-        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        rg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        vm=$(az vm list --query "[?tags.app == 'nginx'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        rg=$(az vm list --query "[?tags.app == 'nginx'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
         az vm stop -g $rg -n $vm
+        az vm deallocate -g $rg -n $vm
