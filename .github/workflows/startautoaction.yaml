@@ -1,0 +1,39 @@
+name: auto start azure resources
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  VM_TAG_KEY: "app"
+  VM_TAG_VLAUE: "nginx"
+
+
+jobs:
+  azureResourcesStop:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    # Checks out the repository this file is in
+    #- uses: actions/checkout@v3
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Run commads to stop the azure resources
+    - name: start_azure_vm
+      run: |
+        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        rg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        echo "Starting azure vm $vm"
+        az vm start -g $rg -n $vm
+        

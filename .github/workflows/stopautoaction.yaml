@@ -6,10 +6,10 @@ on:
       - main
   workflow_dispatch:
 
-# env:
-#   VM_TAG_KEY: "app"
-#   VM_TAG_VLAUE: "nginx"
-#test test
+env:
+  VM_TAG_KEY: "app"
+  VM_TAG_VLAUE: "nginx"
+
 
 jobs:
   azureResourcesStop:
@@ -32,7 +32,8 @@ jobs:
     # Run commads to stop the azure resources
     - name: stop_azure_vm
       run: |
-        vm=$(az vm list --query "[?tags.app == 'nginx'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        rg=$(az vm list --query "[?tags.app == 'nginx'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        rg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
         az vm stop -g $rg -n $vm
+        echo "Running deallocating command"
         az vm deallocate -g $rg -n $vm
