@@ -42,5 +42,5 @@ jobs:
       run: |
         kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
         krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        echo "Starting Azure AKS cluster $vm"
+        echo "Starting Azure AKS cluster $kcluster"
         az aks start -g $krg -n $kcluster

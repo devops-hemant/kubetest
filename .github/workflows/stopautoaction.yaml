@@ -33,7 +33,14 @@ jobs:
     - name: stop_azure_vm
       run: |
         vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        rg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        az vm stop -g $rg -n $vm
+        vmrg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        az vm stop -g $vmrg -n $vm
         echo "Running deallocating command"
-        az vm deallocate -g $rg -n $vm
+        az vm deallocate -g $vmrg -n $vm
+
+    - name: stop_azure_aks_cluster
+      run: |
+        kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        echo "Starting Azure AKS cluster $kcluster"
+        az aks stop -g $krg -n $kcluster
