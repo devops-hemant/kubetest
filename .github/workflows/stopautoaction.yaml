@@ -3,7 +3,7 @@ name: auto stop azure resources
 on:
   schedule:
     - cron: "30 4 * * 6"
-  workflow_dispatch:
+  # workflow_dispatch:
 
 env:
   VM_TAG_KEY: "app"

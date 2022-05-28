@@ -2,7 +2,7 @@ name: auto start azure resources
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '5 * * * *'
   # workflow_dispatch:
 
 env:
