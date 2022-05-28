@@ -9,6 +9,8 @@ on:
 env:
   VM_TAG_KEY: "app"
   VM_TAG_VLAUE: "nginx"
+  AKS_TAG_KEY: "foo"
+  AKS_TAG_VLAUE: "bar"  
 
 
 jobs:
