@@ -3,7 +3,7 @@ name: auto start azure resources
 on:
   schedule:
     - cron: '* * * * *'
-  workflow_dispatch:
+  # workflow_dispatch:
 
 env:
   VM_TAG_KEY: "app"
