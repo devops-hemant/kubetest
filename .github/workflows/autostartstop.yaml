@@ -79,7 +79,7 @@ jobs:
         krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
         for krg in ${krgstr[@]}; do
           echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
             echo "Starting Azure VM $kcluster"
             az aks start -g $krg -n $kcluster
