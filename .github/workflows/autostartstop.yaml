@@ -31,33 +31,33 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
     # Run commads to stop the azure resources
-    - name: stop_azure_vm
-      if: github.event.schedule != '30 2 * * 1-5'
-      run: |
-        rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for vmrg in ${rgstr[@]}; do
-          echo "running command with ResourceGroup $vmrg"
-          vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
-          for vm in ${vmstr[@]}; do
-            echo "Stopping Azure VM $vm"
-            az vm stop -g $vmrg -n $vm
-            echo "Running deallocating command"
-            az vm deallocate -g $vmrg -n $vm
-          done  
-        done
+    # - name: stop_azure_vm
+    #   if: github.event.schedule != '30 2 * * 1-5'
+    #   run: |
+    #     rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
+    #     for vmrg in ${rgstr[@]}; do
+    #       echo "running command with ResourceGroup $vmrg"
+    #       vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+    #       for vm in ${vmstr[@]}; do
+    #         echo "Stopping Azure VM $vm"
+    #         az vm stop -g $vmrg -n $vm
+    #         echo "Running deallocating command"
+    #         az vm deallocate -g $vmrg -n $vm
+    #       done  
+    #     done
 
-    - name: stop_azure_aks_cluster
-      if: github.event.schedule != '30 2 * * 1-5'
-      run: |
-        krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for krg in ${krgstr[@]}; do
-          echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
-          for kcluster in ${kclusterstr[@]}; do
-            echo "Stopping Azure AKS $kcluster"
-            az aks stop -g $krg -n $kcluster
-          done  
-        done
+    # - name: stop_azure_aks_cluster
+    #   if: github.event.schedule != '30 2 * * 1-5'
+    #   run: |
+    #     krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
+    #     for krg in ${krgstr[@]}; do
+    #       echo "running command with ResourceGroup $krg"
+    #       kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+    #       for kcluster in ${kclusterstr[@]}; do
+    #         echo "Stopping Azure AKS $kcluster"
+    #         az aks stop -g $krg -n $kcluster
+    #       done  
+    #     done
 
     # Run commads to start the azure resources
     - name: start_azure_vm
