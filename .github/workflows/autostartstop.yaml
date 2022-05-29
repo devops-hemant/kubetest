@@ -4,10 +4,11 @@ on:
   schedule:
     - cron: '30 2 * * 1-5'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
     - cron: '30 14 * * 1-5'     # Stop timing is set as per UTC time zone as based on 08:00 PM IST
+  workflow_dispatch:
 
 env:
-  VM_TAG_KEY: "app"
-  VM_TAG_VLAUE: "nginx"
+  VM_TAG_KEY: "auto"
+  VM_TAG_VLAUE: "yes"
   AKS_TAG_KEY: "foo"
   AKS_TAG_VLAUE: "bar"  
 
