@@ -32,10 +32,15 @@ jobs:
     # Run commads to start the azure resources
     - name: start_azure_vm
       run: |
-        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        vmrg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        echo "Starting Azure VM $vm"
-        az vm start -g $vmrg -n $vm
+        rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
+        for vmrg in ${rgstr[@]}; do
+          echo "running command with $vmrg"
+          vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+          for vm in ${vmstr[@]}; do
+            echo "Starting Azure VM $vm"
+            az vm start -g $vmrg -n $vm
+          done  
+        done
         
     - name: start_azure_aks_cluster
       run: |
