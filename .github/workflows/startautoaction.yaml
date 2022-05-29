@@ -49,7 +49,7 @@ jobs:
           echo "running command with ResourceGroup $krg"
           kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
-            echo "Starting Azure VM $kcluster"
-            az vm start -g $krg -n $kcluster
+            echo "Starting Azure AKS $kcluster"
+            az aks start -g $krg -n $kcluster
           done  
         done
