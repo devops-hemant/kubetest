@@ -1,4 +1,4 @@
-name: auto stop azure resources
+name: azure
 
 on:
   schedule:
