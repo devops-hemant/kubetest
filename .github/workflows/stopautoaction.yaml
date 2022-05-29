@@ -52,7 +52,7 @@ jobs:
           echo "running command with $krg"
           kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
-            echo "Stopping Azure VM $kcluster"
+            echo "Stopping Azure AKS $kcluster"
             az vm stop -g $krg -n $kcluster
           done  
         done
