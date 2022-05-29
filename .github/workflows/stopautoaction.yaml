@@ -33,15 +33,26 @@ jobs:
     # Run commads to stop the azure resources
     - name: stop_azure_vm
       run: |
-        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        vmrg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        az vm stop -g $vmrg -n $vm
-        echo "Running deallocating command"
-        az vm deallocate -g $vmrg -n $vm
-
+        rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
+        for vmrg in ${rgstr[@]}; do
+          echo "running command with $vmrg"
+          vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+          for vm in ${vmstr[@]}; do
+            echo "Stopping Azure VM $vm"
+            az vm stop -g $vmrg -n $vm
+            echo "Running deallocating command"
+            az vm deallocate -g $vmrg -n $vm
+          done  
+        done
+        
     - name: stop_azure_aks_cluster
       run: |
-        kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
-        krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
-        echo "Stopping Azure AKS cluster $kcluster"
-        az aks stop -g $krg -n $kcluster
+        krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
+        for krg in ${krgstr[@]}; do
+          echo "running command with $krg"
+          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+          for kcluster in ${kclusterstr[@]}; do
+            echo "Stopping Azure VM $kcluster"
+            az vm stop -g $krg -n $kcluster
+          done  
+        done
