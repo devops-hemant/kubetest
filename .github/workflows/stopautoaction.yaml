@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  VM_TAG_KEY: "app"
-  VM_TAG_VLAUE: "nginx"
+  VM_TAG_KEY: "auto"
+  VM_TAG_VLAUE: "yes"
   AKS_TAG_KEY: "foo"
   AKS_TAG_VLAUE: "bar"  
 
