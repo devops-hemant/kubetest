@@ -1,18 +1,19 @@
-name: auto start azure resources
+name: auto stop azure resources
 
 on:
   schedule:
-    - cron: '05 03 * * 0'
-  # workflow_dispatch:
+    - cron: '30 2 * * 1-5'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
+    - cron: '30 14 * * 1-5'     # Stop timing is set as per UTC time zone as based on 08:00 PM IST
 
 env:
   VM_TAG_KEY: "app"
   VM_TAG_VLAUE: "nginx"
   AKS_TAG_KEY: "foo"
-  AKS_TAG_VLAUE: "bar"
+  AKS_TAG_VLAUE: "bar"  
+
 
 jobs:
-  azureResourcesStart:
+  azureResourcesStop:
     permissions:
       contents: read
       id-token: write
@@ -29,8 +30,27 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
+    # Run commads to stop the azure resources
+    - name: stop_azure_vm
+      if: github.event.schedule != '30 2 * * 1-5'
+      run: |
+        vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        vmrg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        az vm stop -g $vmrg -n $vm
+        echo "Running deallocating command"
+        az vm deallocate -g $vmrg -n $vm
+
+    - name: stop_azure_aks_cluster
+      if: github.event.schedule != '30 2 * * 1-5'
+      run: |
+        kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
+        krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
+        echo "Stopping Azure AKS cluster $kcluster"
+        az aks stop -g $krg -n $kcluster
+
     # Run commads to start the azure resources
     - name: start_azure_vm
+      if: github.event.schedule != '30 14 * * 1-5'
       run: |
         vm=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
         vmrg=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
@@ -38,6 +58,7 @@ jobs:
         az vm start -g $vmrg -n $vm
         
     - name: start_azure_aks_cluster
+      if: github.event.schedule != '30 14 * * 1-5'
       run: |
         kcluster=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $1}')
         krg=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name,Group:resourceGroup}" -o tsv | awk '{print $2}')
