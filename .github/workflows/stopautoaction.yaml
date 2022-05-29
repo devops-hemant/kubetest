@@ -35,7 +35,7 @@ jobs:
       run: |
         rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
         for vmrg in ${rgstr[@]}; do
-          echo "running command with $vmrg"
+          echo "running command with ResourceGroup $vmrg"
           vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Stopping Azure VM $vm"
@@ -49,7 +49,7 @@ jobs:
       run: |
         krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
         for krg in ${krgstr[@]}; do
-          echo "running command with $krg"
+          echo "running command with ResourceGroup $krg"
           kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
             echo "Stopping Azure AKS $kcluster"
