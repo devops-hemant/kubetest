@@ -11,7 +11,7 @@ env:
   VM_TAG_VALUE: "yes"
   AKS_TAG_KEY: "foo"
   AKS_TAG_VALUE: "bar"  
-  ResourceGroup: "FREERG"
+  ResourceGroup: "RG1"
 
 jobs:
   azureResourcesStopStart:
