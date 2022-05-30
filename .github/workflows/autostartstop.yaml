@@ -8,10 +8,10 @@ on:
 
 env:
   VM_TAG_KEY: "auto"
-  VM_TAG_VLAUE: "yes"
+  VM_TAG_VALUE: "yes"
   AKS_TAG_KEY: "foo"
-  AKS_TAG_VLAUE: "bar"  
-
+  AKS_TAG_VALUE: "bar"  
+  ResourceGroup: "FREERG"
 
 jobs:
   azureResourcesStopStart:
@@ -20,8 +20,6 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    # Checks out the repository this file is in
-    #- uses: actions/checkout@v3
     
     # Logs in with your Azure credentials
     - name: Azure login
@@ -35,55 +33,54 @@ jobs:
     - name: stop_azure_vm
       if: github.event.schedule != '30 2 * * 1-5'
       run: |
-        rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for vmrg in ${rgstr[@]}; do
-          echo "running command with ResourceGroup $vmrg"
-          vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+       # rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+       # for vmrg in ${rgstr[@]}; do
+       #   echo "running command with ResourceGroup $vmrg"
+          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Stopping Azure VM $vm"
-            az vm stop -g $vmrg -n $vm
+            az vm stop -g ${{ env.ResourceGroup }} -n $vm
             echo "Running deallocating command"
-            az vm deallocate -g $vmrg -n $vm
+            az vm deallocate -g ${{ env.ResourceGroup }} -n $vm
           done  
-        done
+       # done
 
     - name: stop_azure_aks_cluster
       if: github.event.schedule != '30 2 * * 1-5'
       run: |
-        krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for krg in ${krgstr[@]}; do
-          echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+       # krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+       # for krg in ${krgstr[@]}; do
+       #   echo "running command with ResourceGroup $krg"
+          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
             echo "Stopping Azure AKS $kcluster"
-            az aks stop -g $krg -n $kcluster
+            az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
           done  
-        done
+       # done
 
     # Run commads to start the azure resources
     - name: start_azure_vm
       if: github.event.schedule != '30 14 * * 1-5'
       run: |
-        rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for vmrg in ${rgstr[@]}; do
-          echo "running command with ResourceGroup $vmrg"
-          vmstr=$(az vm list -g $vmrg --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VLAUE }}'].{Name:name}" -o tsv)
+       # rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+       # for vmrg in ${rgstr[@]}; do
+       #   echo "running command with ResourceGroup $vmrg"
+          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Starting Azure VM $vm"
-            az vm start -g $vmrg -n $vm
+            az vm start -g ${{ env.ResourceGroup }} -n $vm
           done  
-        done
+       # done
         
     - name: start_azure_aks_cluster
       if: github.event.schedule != '30 14 * * 1-5'
       run: |
-        krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Group:resourceGroup}" -o tsv)
-        for krg in ${krgstr[@]}; do
-          echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g $krg --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VLAUE }}'].{Name:name}" -o tsv)
-          echo "cluster found $kclusterstr"
+       # krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+       # for krg in ${krgstr[@]}; do
+       #   echo "running command with ResourceGroup $krg"
+          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
             echo "Starting Azure AKS $kcluster"
-            az aks start -g $krg -n $kcluster
+            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
           done  
-        done
+       # done
