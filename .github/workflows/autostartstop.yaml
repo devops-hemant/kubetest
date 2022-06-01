@@ -58,6 +58,7 @@ jobs:
        # done
     
     - name: Send GitHub Action trigger data to Slack workflow
+      if: always()
       # if: github.event.schedule != '30 14 * * 1-5'
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
