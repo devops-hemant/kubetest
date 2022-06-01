@@ -57,8 +57,10 @@ jobs:
     #     #done
     - name: AZURE_test
       run: |
-        az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.txt
-    
+        resources=$(az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table)
+      env: 
+        RESOURCES: $resources  
+
     - name: Send GitHub Action trigger data to Slack workflow
       if: always()
       id: slack
@@ -71,7 +73,7 @@ jobs:
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: '#azure-notifications'
         # For posting a rich message using Block Kit
-        slack-message: ${{ cat resources.txt }}
+        slack-message: ${{ env.RESOURCES }}
       # env:
       #   # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       #   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
