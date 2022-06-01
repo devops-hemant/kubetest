@@ -63,8 +63,6 @@ jobs:
       if: always()
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
-      run:
-        resources=$(cat resources.txt)
       env:
         RESOURCES: $resources
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -73,7 +71,7 @@ jobs:
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: '#azure-notifications'
         # For posting a rich message using Block Kit
-        slack-message: ${{ env.RESOURCES }}
+        slack-message: ${{ cat resources.txt }}
       # env:
       #   # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       #   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
