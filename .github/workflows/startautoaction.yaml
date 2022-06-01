@@ -58,7 +58,7 @@ jobs:
 
     - name: Azure_report
       run: |
-        az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o json > payload-slack-content.json.json
+        az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o json > payload-slack-content.json
 
     - name: Send GitHub Action trigger data to Slack workflow
       if: always()
