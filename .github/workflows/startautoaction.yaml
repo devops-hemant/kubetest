@@ -20,6 +20,12 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
+
+    - name: echo-test
+      run: |
+        echo "its a test"
+        teststatus=${{ job.status }}
+
     # Checks out the repository this file is in
     #- uses: actions/checkout@v3
     
@@ -66,13 +72,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action build result: ${{ github.job }} ${{ job.azureResourcesStart.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "text": "GitHub Action build result: ${{ github.job }} $teststatus ${{ job.azureResourcesStart.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action build result: ${{ github.job }} ${{ job.azureResourcesStart.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  "text": "GitHub Action build result: ${{ github.job }} $teststatus ${{ job.azureResourcesStart.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                 }
               }
             ]
