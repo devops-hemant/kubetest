@@ -55,13 +55,16 @@ jobs:
     #         az aks start -g ${{ env.ResourceGroup }} -n $kcluster
     #       done  
     #     #done
-
+    - name: AZURE_test
+      run: |
+        az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.txt
+    
     - name: Send GitHub Action trigger data to Slack workflow
       if: always()
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
-      run: |
-        resources=$(az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table)
+      run:
+        resources=$(cat resources.txt)
       env:
         RESOURCES: $resources
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
