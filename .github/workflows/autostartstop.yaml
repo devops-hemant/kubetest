@@ -15,14 +15,20 @@ env:
 
 jobs:
   azureResourcesStart:
+    if: github.event.schedule != '30 14 * * 1-5'
     permissions:
       contents: read
       id-token: write
-    if: github.event.schedule != '30 14 * * 1-5'
     runs-on: ubuntu-latest
     steps:
     
-    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     # Run commads to start the azure resources
     - name: start_azure_vm
@@ -85,13 +91,13 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
 
-  #   # Logs in with your Azure credentials
-  #   - name: Azure login
-  #     uses: azure/login@v1.4.3
-  #     with:
-  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    # # Logs in with your Azure credentials
+    # - name: Azure login
+    #   uses: azure/login@v1.4.3
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
   #   # Run commads to stop the azure resources
   #   - name: stop_azure_vm
