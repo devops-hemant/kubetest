@@ -25,6 +25,7 @@ jobs:
       run: |
         echo "its a test"
         teststatus=${{ job.status }}
+        echo $teststatus
 
     # Checks out the repository this file is in
     #- uses: actions/checkout@v3
