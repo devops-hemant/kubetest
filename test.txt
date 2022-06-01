@@ -1,0 +1,3 @@
+Name    Location    ResourceGroup    KubernetesVersion    ProvisioningState    Fqdn
+------  ----------  ---------------  -------------------  -------------------  --------------------------------------
+hsk8s   centralus   RG1              1.22.6               Succeeded            hsk8s-8d32e80e.hcp.centralus.azmk8s.io
