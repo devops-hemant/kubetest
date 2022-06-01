@@ -24,12 +24,12 @@ jobs:
     #- uses: actions/checkout@v3
     
     # # Logs in with your Azure credentials
-    # - name: Azure login
-    #   uses: azure/login@v1.4.3
-    #   with:
-    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
     # # Run commads to start the azure resources
     # - name: start_azure_vm
@@ -56,6 +56,10 @@ jobs:
     #       done  
     #     #done
 
+    - name: Azure_report
+      run: |
+        az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o json > payload-slack-content.json.json
+
     - name: Send GitHub Action trigger data to Slack workflow
       if: always()
       id: slack
@@ -63,13 +67,9 @@ jobs:
       with:
         # Slack channel id, channel name, or user id to post message.
         # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: '#azure-notifications'
+        # channel-id: '#azure-notifications'
         # For posting a rich message using Block Kit
-        payload: |
-          {
-            "key": "value",
-            "foo": "bar"
-          }
+        payload-file-path: "./payload-slack-content.json"
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

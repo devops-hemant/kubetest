@@ -1,0 +1,16 @@
+[
+  {
+    "Location": "australiaeast",
+    "Name": "myFreeVm",
+    "PowerState": "VM deallocated",
+    "PublicIP": "20.70.156.47",
+    "ResourceGroup": "RG1"
+  },
+  {
+    "Location": "australiaeast",
+    "Name": "myTestVm",
+    "PowerState": "VM deallocated",
+    "PublicIP": "20.70.139.28",
+    "ResourceGroup": "RG1"
+  }
+]
