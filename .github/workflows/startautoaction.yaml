@@ -66,7 +66,6 @@ jobs:
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
       env:
-        RESOURCES: $resources
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       with:
         # Slack channel id, channel name, or user id to post message.
