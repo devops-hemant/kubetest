@@ -186,3 +186,21 @@ jobs:
         echo "\n" >> resources.html
         az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
 
+    - name: Commit files
+      id: commit
+      run: |
+        git config --local user.email "devopshemant@gmail.com"
+        git config --local user.name "devops-hemant"
+        git add --all
+        if [-z "$(git status --porcelain)"]; then
+           echo "::set-output name=push::false"
+        else
+           git commit -m "Add changes" -a
+           echo "::set-output name=push::true"
+        fi
+      shell: bash
+    - name: Push changes
+      if: steps.commit.outputs.push == 'true'
+      uses: ad-m/github-push-action@main
+      with:
+         github_token: ${{ secrets.MY_TOKEN }}
