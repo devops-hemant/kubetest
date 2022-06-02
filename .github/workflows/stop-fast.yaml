@@ -55,13 +55,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
                 }
               }
             ]
@@ -69,34 +69,6 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
-    # Checks out the repository this file is in
-    - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
-        fetch-depth: 0
-
-    - name: Resource_Status_Repot
-      run: |
-        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.html
-        echo " " >> resources.html
-        echo "=============================================================================================================================" >> resources.html
-        echo " " >> resources.html
-        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
-
-    - name: Commit files
-      id: commit
-      run: |
-        git config --local user.email "devopshemant@gmail.com"
-        git config --local user.name "devops-hemant"
-        git add resources.html
-        git commit -m "Add changes" -a
-      shell: bash
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-         github_token: ${{ secrets.MY_TOKEN }}
-         branch: ${{ github.ref }}
         
   azure_AKS_stop:
     permissions:
@@ -137,13 +109,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
                 }
               }
             ]
@@ -152,33 +124,6 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-    # Checks out the repository this file is in
-    - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
-        fetch-depth: 0
-
-    - name: Resource_Status_Repot
-      run: |
-        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.html
-        echo " " >> resources.html
-        echo "=============================================================================================================================" >> resources.html
-        echo " " >> resources.html
-        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
-
-    - name: Commit files
-      id: commit
-      run: |
-        git config --local user.email "devopshemant@gmail.com"
-        git config --local user.name "devops-hemant"
-        git add resources.html
-        git commit -m "Add changes" -a
-      shell: bash
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-         github_token: ${{ secrets.MY_TOKEN }}
-         branch: ${{ github.ref }}
       
 
   Azure_Resources_stop:
@@ -201,13 +146,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
+            "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
+                  "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                 }
               }
             ]
@@ -260,3 +205,38 @@ jobs:
       with:
          github_token: ${{ secrets.MY_TOKEN }}
          branch: ${{ github.ref }}
+
+  Azure_Resources_status:
+    permissions:
+      contents: read
+      id-token: write
+    needs: [Resources_Status]
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Send GitHub Action trigger data to Slack workflow
+      # if: always()
+      id: slack
+      uses: slackapi/slack-github-action@v1.19.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: '#azure-notifications'
+        # For posting a rich message using Block Kit
+        payload: |
+          {
+            "text": "Use link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
+            "blocks": [
+              {
+               "type": "section",
+                "text": {
+                 "type": "mrkdwn",
+                  "text": "Use link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
