@@ -71,7 +71,7 @@ jobs:
           kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
             echo "Starting Azure AKS $kcluster"
-            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+            az aks start -gwewe ${{ env.ResourceGroup }} -n $kcluster
           done  
         #done
 
