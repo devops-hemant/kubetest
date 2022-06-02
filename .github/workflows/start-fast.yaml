@@ -160,7 +160,7 @@ jobs:
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   Resource_Status:
-    # needs: [azure_VM_start, azure_AKS_start]
+    needs: [azure_VM_start, azure_AKS_start]
     if: always()
     runs-on: ubuntu-latest
     steps:
