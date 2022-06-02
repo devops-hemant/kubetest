@@ -159,17 +159,12 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  Resource_Status:
+  Resources_Status:
     needs: [azure_VM_start, azure_AKS_start]
     if: always()
     runs-on: ubuntu-latest
     steps:
-    # Checks out the repository this file is in
-    - uses: actions/checkout@v3
-      # with:
-      #   persist-credentials: false
-      #   fetch-depth: 0
-    
+
     # Logs in with your Azure credentials
     - name: Azure login
       uses: azure/login@v1.4.3
@@ -177,6 +172,12 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+      # with:
+      #   persist-credentials: false
+      #   fetch-depth: 0
 
     - name: Resource_Status_Repot
       run: |
