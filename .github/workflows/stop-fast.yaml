@@ -211,7 +211,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    needs: [Resources_Status]
+    needs: [Resources_Status, Azure_Resources_stop]
     if: always()
     runs-on: ubuntu-latest
     steps:
