@@ -55,13 +55,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
                 }
               }
             ]
@@ -109,13 +109,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
                 }
               }
             ]
@@ -144,13 +144,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  "text": "GitHub Action result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nUse link to check status report: https://github.com/devops-hemant/kubetest/blob/main/resources.html"
                 }
               }
             ]
@@ -158,3 +158,49 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+
+  Resources_Status:
+    permissions:
+      contents: read
+      id-token: write
+    # needs: [azure_VM_start, azure_AKS_start]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Resource_Status_Repot
+      run: |
+        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+
+    - name: Commit files
+      id: commit
+      run: |
+        git config --local user.email "devopshemant@gmail.com"
+        git config --local user.name "devops-hemant"
+        git add resources.html
+        git commit -m "Add changes" -a
+      shell: bash
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+         github_token: ${{ secrets.MY_TOKEN }}
+         branch: ${{ github.ref }}
