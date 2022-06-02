@@ -32,6 +32,7 @@ jobs:
 
     # Run commads to start the azure resources
     - name: start_azure_vm
+      if: always()
       # if: github.event.schedule != '30 14 * * 1-5'
       run: |
        # rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -40,11 +41,12 @@ jobs:
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Starting Azure VM $vm"
-            az vm start -gwefwef ${{ env.ResourceGroup }} -n $vm
+            az vm start -g ${{ env.ResourceGroup }} -n $vm
           done  
        # done
         
     - name: start_azure_aks_cluster
+      if: always()
       # if: github.event.schedule != '30 14 * * 1-5'
       run: |
        # krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -103,6 +105,7 @@ jobs:
       
     # Run commads to stop the azure resources
     - name: stop_azure_vm
+      if: always()
     #  if: github.event.schedule != '30 2 * * 1-5'
       run: |
        # rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -118,6 +121,7 @@ jobs:
        # done
 
     - name: stop_azure_aks_cluster
+      if: always()
      # if: github.event.schedule != '30 2 * * 1-5'
       run: |
        # krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
