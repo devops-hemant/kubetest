@@ -42,7 +42,7 @@ jobs:
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Starting Azure VM $vm"
-            az vm start -gwewe ${{ env.ResourceGroup }} -n $vm
+            az vm start -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
     - name: start_azure_vm_faild
