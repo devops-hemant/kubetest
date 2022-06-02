@@ -69,6 +69,34 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Resource_Status_Repot
+      run: |
+        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+
+    - name: Commit files
+      id: commit
+      run: |
+        git config --local user.email "devopshemant@gmail.com"
+        git config --local user.name "devops-hemant"
+        git add resources.html
+        git commit -m "Add changes" -a
+      shell: bash
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+         github_token: ${{ secrets.MY_TOKEN }}
+         branch: ${{ github.ref }}
         
   azure_AKS_stop:
     permissions:
@@ -124,11 +152,40 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  Azure_Resources_Stop:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Resource_Status_Repot
+      run: |
+        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table > resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+
+    - name: Commit files
+      id: commit
+      run: |
+        git config --local user.email "devopshemant@gmail.com"
+        git config --local user.name "devops-hemant"
+        git add resources.html
+        git commit -m "Add changes" -a
+      shell: bash
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+         github_token: ${{ secrets.MY_TOKEN }}
+         branch: ${{ github.ref }}
+      
+
+  Azure_Resources_stop:
     permissions:
       contents: read
       id-token: write
-    needs: [azure_VM_stop, azure_AKS_stop]
+    needs: [azure_VM_stop, azure_AKS_stop, Resources_Status]
     # if: always()
     runs-on: ubuntu-latest
     steps:
@@ -158,7 +215,6 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
 
   Resources_Status:
     permissions:
