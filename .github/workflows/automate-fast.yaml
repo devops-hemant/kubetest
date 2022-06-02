@@ -1,4 +1,4 @@
-name: fast start azure resources
+name: fast stop azure resources
 
 on:
   # push:
@@ -16,7 +16,7 @@ env:
   ResourceGroup: "RG1"
 
 jobs:
-  azure_VM_Start:
+  azure_VM_stop:
     permissions:
       contents: read
       id-token: write
@@ -32,8 +32,8 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-    # Run commads to start the azure resources
-    - name: start_azure_vm
+    # Run commads to stop the azure resources
+    - name: stop_azure_vm
       # if: always()
       run: |
         #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -41,11 +41,11 @@ jobs:
           #echo "running command with ResourceGroup $vmrg"
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
-            echo "Starting Azure VM $vm"
-            az vm start -g ${{ env.ResourceGroup }} -n $vm
+            echo "stoping Azure VM $vm"
+            az vm stop -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
-    - name: start_azure_vm_faild
+    - name: stop_azure_vm_faild
       if: ${{ failure() }}
       uses: slackapi/slack-github-action@v1.19.0
       with:
@@ -70,7 +70,7 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         
-  azure_AKS_Start:
+  azure_AKS_stop:
     permissions:
       contents: read
       id-token: write
@@ -86,7 +86,7 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
 
-    - name: start_azure_aks_cluster
+    - name: stop_azure_aks_cluster
       # if: always()
       run: |
         #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -94,12 +94,12 @@ jobs:
           #echo "running command with ResourceGroup $krg"
           kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
-            echo "Starting Azure AKS $kcluster"
-            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+            echo "stoping Azure AKS $kcluster"
+            az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
           done  
         #done
 
-    - name: start_azure_aks_faild
+    - name: stop_azure_aks_faild
       if: ${{ failure() }}
       uses: slackapi/slack-github-action@v1.19.0
       with:
@@ -124,11 +124,11 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  Azure_Resources_Start:
+  Azure_Resources_stop:
     permissions:
       contents: read
       id-token: write
-    needs: [azure_VM_Start, azure_AKS_Start]
+    needs: [azure_VM_stop, azure_AKS_stop]
     # if: always()
     runs-on: ubuntu-latest
     steps:
