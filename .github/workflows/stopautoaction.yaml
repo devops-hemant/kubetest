@@ -32,6 +32,7 @@ jobs:
       
     # Run commads to stop the azure resources
     - name: stop_azure_vm
+      if: always()
       run: |
         #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
         #for vmrg in ${rgstr[@]}; do
@@ -46,6 +47,7 @@ jobs:
         #done
         
     - name: stop_azure_aks_cluster
+      if: always()
       run: |
         #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
         #for krg in ${krgstr[@]}; do
@@ -58,6 +60,7 @@ jobs:
         #done
 
     - name: Send GitHub Action trigger data to Slack workflow
+      if: always()
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
       with:
