@@ -1,11 +1,11 @@
 name: fast start azure resources
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  schedule:
-    - cron: "30 4 * * 6"
+  push:
+    branches:
+      - main
+  # schedule:
+  #   - cron: "30 4 * * 6"
   workflow_dispatch:
 
 env:
