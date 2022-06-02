@@ -19,11 +19,11 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    steps:      
+    steps:
     # Checks out the repository this file is in
     #- uses: actions/checkout@v3
     
-    # # Logs in with your Azure credentials
+    # Logs in with your Azure credentials
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
@@ -31,48 +31,52 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-    # # Run commads to start the azure resources
-    # - name: start_azure_vm
-    #   run: |
-    #     #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
-    #     #for vmrg in ${rgstr[@]}; do
-    #       #echo "running command with ResourceGroup $vmrg"
-    #       vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
-    #       for vm in ${vmstr[@]}; do
-    #         echo "Starting Azure VM $vm"
-    #         az vm start -g ${{ env.ResourceGroup }} -n $vm
-    #       done  
-    #     #done
-        
-    # - name: start_azure_aks_cluster
-    #   run: |
-    #     #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
-    #     #for krg in ${krgstr[@]}; do
-    #       #echo "running command with ResourceGroup $krg"
-    #       kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
-    #       for kcluster in ${kclusterstr[@]}; do
-    #         echo "Starting Azure AKS $kcluster"
-    #         az aks start -g ${{ env.ResourceGroup }} -n $kcluster
-    #       done  
-    #     #done
-    - name: AZURE_test
+    # Run commads to start the azure resources
+    - name: start_azure_vm
       run: |
-        resources=$(az vm list -d --query "[?tags.auto == 'yes'].{Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table)
-      env: 
-        RESOURCES: $resources  
+        #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for vmrg in ${rgstr[@]}; do
+          #echo "running command with ResourceGroup $vmrg"
+          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
+          for vm in ${vmstr[@]}; do
+            echo "Starting Azure VM $vm"
+            az vm start -g ${{ env.ResourceGroup }} -n $vm
+          done  
+        #done
+        
+    - name: start_azure_aks_cluster
+      run: |
+        #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for krg in ${krgstr[@]}; do
+          #echo "running command with ResourceGroup $krg"
+          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
+          for kcluster in ${kclusterstr[@]}; do
+            echo "Starting Azure AKS $kcluster"
+            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+          done  
+        #done
 
     - name: Send GitHub Action trigger data to Slack workflow
-      if: always()
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       with:
         # Slack channel id, channel name, or user id to post message.
         # See also: https://api.slack.com/methods/chat.postMessage#channels
         channel-id: '#azure-notifications'
         # For posting a rich message using Block Kit
-        slack-message: ${{ env.RESOURCES }}
-      # env:
-      #   # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        payload: |
+          {
+            "text": "GitHub Action build result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "blocks": [
+              {
+               "type": "section",
+                "text": {
+                 "type": "mrkdwn",
+                  "text": "GitHub Action build result: ${{ github.job }} ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
