@@ -160,15 +160,15 @@ jobs:
   #       # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   Resource_Status:
-    permissions:
-      contents: read
-      id-token: write
     # needs: [azure_VM_start, azure_AKS_start]
     if: always()
     runs-on: ubuntu-latest
     steps:
     # Checks out the repository this file is in
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
     
     # Logs in with your Azure credentials
     - name: Azure login
@@ -189,18 +189,12 @@ jobs:
     - name: Commit files
       id: commit
       run: |
-        git config --local user.email "devopshemant@gmail.com"
-        git config --local user.name "devops-hemant"
-        git add --all
-        if [-z "$(git status --porcelain)"]; then
-           echo "::set-output name=push::false"
-        else
-           git commit -m "Add changes" -a
-           echo "::set-output name=push::true"
-        fi
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git commit -m "Add changes" -a
       shell: bash
     - name: Push changes
-      if: steps.commit.outputs.push == 'true'
       uses: ad-m/github-push-action@master
       with:
          github_token: ${{ secrets.MY_TOKEN }}
+         branch: ${{ github.ref }}
