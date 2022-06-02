@@ -191,6 +191,7 @@ jobs:
       run: |
         git config --local user.email "devopshemant@gmail.com"
         git config --local user.name "devops-hemant"
+        git add resources.html
         git commit -m "Add changes" -a
       shell: bash
     - name: Push changes
