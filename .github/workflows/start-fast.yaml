@@ -163,7 +163,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # needs: [azure_VM_start, azure_AKS_start]
+    needs: [azure_VM_start, azure_AKS_start]
     if: always()
     runs-on: ubuntu-latest
     steps:
