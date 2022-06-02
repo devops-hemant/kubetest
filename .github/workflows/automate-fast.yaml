@@ -42,9 +42,33 @@ jobs:
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
             echo "Starting Azure VM $vm"
-            az vm start -g ${{ env.ResourceGroup }} -n $vm
+            az vm start -gwewe ${{ env.ResourceGroup }} -n $vm
           done  
         #done
+    - name: start_azure_vm_faild
+      if: ${{ failure() }}
+      uses: slackapi/slack-github-action@v1.19.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: '#azure-notifications'
+        # For posting a rich message using Block Kit
+        payload: |
+          {
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "blocks": [
+              {
+               "type": "section",
+                "text": {
+                 "type": "mrkdwn",
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         
   azure_AKS_Start:
     permissions:
@@ -74,6 +98,31 @@ jobs:
             az aks start -gwewe ${{ env.ResourceGroup }} -n $kcluster
           done  
         #done
+
+    - name: start_azure_aks_faild
+      if: ${{ failure() }}
+      uses: slackapi/slack-github-action@v1.19.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: '#azure-notifications'
+        # For posting a rich message using Block Kit
+        payload: |
+          {
+            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "blocks": [
+              {
+               "type": "section",
+                "text": {
+                 "type": "mrkdwn",
+                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   azureResourcesStartNotification:
     permissions:
