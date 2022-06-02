@@ -1,4 +1,4 @@
-name: azure
+name: azure resources start stop
 
 on:
   schedule:
