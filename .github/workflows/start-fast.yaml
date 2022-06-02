@@ -177,10 +177,10 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     
     # Checks out the repository this file is in
-    - uses: actions/checkout@v3
-      # with:
-      #   persist-credentials: false
-      #   fetch-depth: 0
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
     - name: Resource_Status_Repot
       run: |
