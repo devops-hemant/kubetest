@@ -11,8 +11,8 @@ on:
 env:
   VM_TAG_KEY: "auto"
   VM_TAG_VALUE: "yes"
-  AKS_TAG_KEY: "k8s"
-  AKS_TAG_VALUE: "dev"
+  AKS_TAG_KEY: "foo"
+  AKS_TAG_VALUE: "bar"
   ResourceGroup: "RG1"
 
 jobs:
