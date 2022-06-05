@@ -225,8 +225,6 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: my-artifact
-
-    - name: create a variables
       env: 
         RESOURCES: 'cat resources.html'
 
