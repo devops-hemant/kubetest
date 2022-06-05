@@ -55,6 +55,10 @@ jobs:
         path: resources.html
         retention-days: 7
 
+    - name: send slack Slack_Notification
+      run: |
+        curl -F file=@resources.html -F "initial_comment=Azure Resources Status Table" -F channels=azure-notifications -H "Authorization: Bearer xoxb-3597522080486-3604162289986-blsgky5dVMfUt24QJsiLZpDo" https://slack.com/api/files.upload
+
     # - name: Commit files
     #   id: commit
     #   run: |
@@ -69,82 +73,82 @@ jobs:
     #      github_token: ${{ secrets.MY_TOKEN }}
     #      branch: ${{ github.ref }}
 
-  Slack_Notification:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [Resources_Status_Check]
-    # if: always()
-    runs-on: ubuntu-latest
-    steps:
+  # Slack_Notification:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   needs: [Resources_Status_Check]
+  #   # if: always()
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-    - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
-      id: slack
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: '#azure-notifications'
-        # For posting a rich message using Block Kit
-        payload: |
-          {
-            "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  #   - name: Send GitHub Action trigger data to Slack workflow
+  #     # if: always()
+  #     id: slack
+  #     uses: slackapi/slack-github-action@v1.19.0
+  #     with:
+  #       # Slack channel id, channel name, or user id to post message.
+  #       # See also: https://api.slack.com/methods/chat.postMessage#channels
+  #       channel-id: '#azure-notifications'
+  #       # For posting a rich message using Block Kit
+  #       payload: |
+  #         {
+  #           "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+  #           "blocks": [
+  #             {
+  #              "type": "section",
+  #               "text": {
+  #                "type": "mrkdwn",
+  #                 "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+  #               }
+  #             }
+  #           ]
+  #         }
+  #     env:
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #       # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  Azure_Resources_Status:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [Resources_Status_Check, Slack_Notification]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
+  # Azure_Resources_Status:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   needs: [Resources_Status_Check, Slack_Notification]
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-    - name: Download a single artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: my-artifact
+  #   - name: Download a single artifact
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: my-artifact
     
-    - name: create variable  
-      run: | 
-        RESOURCES=$(cat resources.html)
-        echo "$RESOURCES"
+  #   - name: create variable  
+  #     run: | 
+  #       RESOURCES=$(cat resources.html)
+  #       echo "$RESOURCES"
 
-    - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
-      id: slack
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: '#azure-notifications'
-        # For posting a rich message using Block Kit
-        payload: |
-          {
-            "text": "Use link to check status report:\n$RESOURCES",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "Use link to check status report:\n$RESOURCES"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  #   - name: Send GitHub Action trigger data to Slack workflow
+  #     # if: always()
+  #     id: slack
+  #     uses: slackapi/slack-github-action@v1.19.0
+  #     with:
+  #       # Slack channel id, channel name, or user id to post message.
+  #       # See also: https://api.slack.com/methods/chat.postMessage#channels
+  #       channel-id: '#azure-notifications'
+  #       # For posting a rich message using Block Kit
+  #       payload: |
+  #         {
+  #           "text": "Use link to check status report:\n$RESOURCES",
+  #           "blocks": [
+  #             {
+  #              "type": "section",
+  #               "text": {
+  #                "type": "mrkdwn",
+  #                 "text": "Use link to check status report:\n$RESOURCES"
+  #               }
+  #             }
+  #           ]
+  #         }
+  #     env:
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #       # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
