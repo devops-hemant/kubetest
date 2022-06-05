@@ -57,7 +57,7 @@ jobs:
 
     - name: send slack Slack_Notification
       run: |
-        curl -F file=@resources.html -F "initial_comment=Azure Resources Status Table" -F channels=azure-notifications -H "Authorization: Bearer xoxb-3597522080486-3604162289986-blsgky5dVMfUt24QJsiLZpDo" https://slack.com/api/files.upload
+        curl -F file=@resources.html -F "initial_comment=Azure Resources Status Table" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrects.SLACK_ACCESS }}" https://slack.com/api/files.upload
 
     # - name: Commit files
     #   id: commit
