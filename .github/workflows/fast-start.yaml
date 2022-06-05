@@ -225,6 +225,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: my-artifact
+    
+    - name: create variable  
       run:  
         RESOURCES=$(cat resources.html)
 
@@ -239,13 +241,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "Use link to check status report:\n${RESOURCES}",
+            "text": "Use link to check status report:\n$(cat resources.html)",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "Use link to check status report:\n${RESOURCES}"
+                  "text": "Use link to check status report:\n$(cat resources.html)"
                 }
               }
             ]
