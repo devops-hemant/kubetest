@@ -225,8 +225,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: my-artifact
-      env: 
-        RESOURCES: 'cat resources.html'
+      run:  
+        RESOURCES=$(cat resources.html)
 
     - name: Send GitHub Action trigger data to Slack workflow
       # if: always()
@@ -239,13 +239,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "Use link to check status report:\n${{ env.RESOURCES }}",
+            "text": "Use link to check status report:\n${RESOURCES}",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "Use link to check status report:\n${{ env.RESOURCES }}"
+                  "text": "Use link to check status report:\n${RESOURCES}"
                 }
               }
             ]
