@@ -67,8 +67,8 @@ jobs:
             ]
           }
       env:
-        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
         
   Azure_AKS_Start:
     permissions:
@@ -121,8 +121,8 @@ jobs:
             ]
           }
       env:
-        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
 
 
 
@@ -172,8 +172,8 @@ jobs:
             ]
           }
       env:
-        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
 
   Resources_Status_Report:
     permissions:
