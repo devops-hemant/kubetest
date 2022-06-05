@@ -119,7 +119,7 @@ jobs:
         name: my-artifact
     
     - name: create variable  
-      run:  
+      run: | 
         RESOURCES=$(cat resources.html)
         echo "$RESOURCES"
 
