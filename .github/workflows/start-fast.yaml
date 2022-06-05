@@ -121,8 +121,8 @@ jobs:
             ]
           }
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   Resources_Status_Check:
     permissions:
@@ -209,8 +209,8 @@ jobs:
             ]
           }
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   Azure_Resources_Status:
     permissions:
