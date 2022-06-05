@@ -121,6 +121,7 @@ jobs:
     - name: create variable  
       run:  
         RESOURCES=$(cat resources.html)
+        echo "$RESOURCES"
 
     - name: Send GitHub Action trigger data to Slack workflow
       # if: always()
@@ -133,13 +134,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "Use link to check status report:\n${{ RESOURCES }}",
+            "text": "Use link to check status report:\n$RESOURCES",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "Use link to check status report:\n${{ RESOURCES }}"
+                  "text": "Use link to check status report:\n$RESOURCES"
                 }
               }
             ]
