@@ -1,10 +1,12 @@
-name: Azure resources start stop
+name: fast start azure resources
 
 on:
-  schedule:
-    - cron: '0 23 * * 0'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
-    - cron: '30 14 * * 5'     # Stop timing is set as per UTC time zone as based on 08:00 PM IST
-  # workflow_dispatch:
+  push:
+    branches:
+      - main
+  # schedule:
+  #   - cron: '30 2 * * 1-5'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
+  workflow_dispatch:
 
 env:
   VM_TAG_KEY: "auto"
@@ -42,28 +44,7 @@ jobs:
             az vm start -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
-
-    - name: start_azure_vm_faild
-      if: ${{ failure() }}
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        channel-id: '#azure-notifications'
-        payload: |
-          {
-            "text": "GitHub Action Job to start Azure VMs status: ${{ job.status }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "GitHub Action Job to start Azure VMs status: ${{ job.status }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
+    # - name: start_azure_vm_faild
         
   Azure_AKS_Start:
     permissions:
@@ -93,61 +74,9 @@ jobs:
           done  
         #done
 
-    - name: start_azure_aks_faild
-      if: ${{ failure() }}
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        channel-id: '#azure-notifications'
-        payload: |
-          {
-            "text": "GitHub Action Job to start AKS status: ${{ job.status }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "GitHub Action Job to start AKS status: ${{ job.status }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS }}
+    # - name: start_azure_aks_faild
 
-  Azure_Resources_Start_Slack_Notification:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [azure_VM_start, azure_AKS_start,]
-    # if: always()
-    runs-on: ubuntu-latest
-    steps:
-
-    - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
-      id: slack
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        channel-id: '#azure-notifications'
-        payload: |
-          {
-            "text": "Azure resources running status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "Azure resources running status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
-
-  Resources_Status_Report_Slack_Notification:
+  Slack_Notification:
     permissions:
       contents: read
       id-token: write
@@ -163,8 +92,14 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
-    - name: Resource_Status_Repot_creation
+    - name: Resource_Status_Repot
       run: |
         date > resources.html
         az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
@@ -172,7 +107,7 @@ jobs:
         echo "=============================================================================================================================" >> resources.html
         echo " " >> resources.html
         az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
-    
+
     - name: send slack Slack_Notification
       run: |
-        curl -F file=@resources.html -F "initial_comment=Azure Resources Status Table" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        curl -F file=@resources.html -F "initial_comment=${{ job.status }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
