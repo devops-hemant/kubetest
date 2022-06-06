@@ -5,7 +5,7 @@ on:
   #   branches:
   #     - main
   schedule:
-    - cron: "30 4 * * 6"
+    - cron: '30 2 * * 1-5'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
   workflow_dispatch:
 
 env:

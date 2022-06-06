@@ -1,11 +1,11 @@
-name: fast start azure resources
+name: fast stop azure resources
 
 on:
   # push:
   #   branches:
   #     - main
   schedule:
-    - cron: "30 4 * * 6"
+    - cron: '30 14 * * 1-5'     # Stop timing is set as per UTC time zone as based on 08:00 PM IST
   workflow_dispatch:
 
 env:
@@ -16,7 +16,7 @@ env:
   ResourceGroup: "RG1"
 
 jobs:
-  Azure_VM_Start:
+  Azure_VM_Stop:
     permissions:
       contents: read
       id-token: write
@@ -32,8 +32,8 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-    # Run commads to start the azure resources
-    - name: start_azure_vm
+    # Run commads to stop the azure resources
+    - name: stop_azure_vm
       # if: always()
       run: |
         #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -41,11 +41,11 @@ jobs:
           #echo "running command with ResourceGroup $vmrg"
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
-            echo "starting Azure VM $vm"
-            az vm start -g ${{ env.ResourceGroup }} -n $vm
+            echo "stoping Azure VM $vm"
+            az vm stop -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
-    - name: start_azure_vm_faild
+    - name: stop_azure_vm_faild
       if: ${{ failure() }}
       uses: slackapi/slack-github-action@v1.19.0
       with:
@@ -55,13 +55,13 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "text": "GitHub Action Job to Stop Azure VMs has faild.",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                  "text": "GitHub Action Job to Stop Azure VMs has faild."
                 }
               }
             ]
@@ -70,7 +70,7 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         
-  Azure_AKS_Start:
+  Azure_AKS_stop:
     permissions:
       contents: read
       id-token: write
@@ -86,7 +86,7 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
 
-    - name: start_azure_aks_cluster
+    - name: stop_azure_aks_cluster
       # if: always()
       run: |
         #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
@@ -94,12 +94,12 @@ jobs:
           #echo "running command with ResourceGroup $krg"
           kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
           for kcluster in ${kclusterstr[@]}; do
-            echo "starting Azure AKS $kcluster"
-            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+            echo "stoping Azure AKS $kcluster"
+            az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
           done  
         #done
 
-    - name: start_azure_aks_faild
+    - name: stop_azure_aks_faild
       if: ${{ failure() }}
       uses: slackapi/slack-github-action@v1.19.0
       with:
@@ -109,26 +109,77 @@ jobs:
         # For posting a rich message using Block Kit
         payload: |
           {
-            "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}",
+            "text": "GitHub Action Job to Stop AKS has faild.",
             "blocks": [
               {
                "type": "section",
                 "text": {
                  "type": "mrkdwn",
-                  "text": "GitHub Action Job: ${{ github.job }} ${{ job.status }}"
+                  "text": "GitHub Action Job to Stop AKS has faild."
                 }
               }
             ]
           }
       env:
-        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-  Resources_Status_Check:
+
+
+    # - name: Commit files
+    #   id: commit
+    #   run: |
+    #     git config --local user.email "devopshemant@gmail.com"
+    #     git config --local user.name "devops-hemant"
+    #     git add resources.html
+    #     git commit -m "Add changes" -a
+    #   shell: bash
+    # - name: Push changes
+    #   uses: ad-m/github-push-action@master
+    #   with:
+    #      github_token: ${{ secrets.MY_TOKEN }}
+    #      branch: ${{ github.ref }}
+
+  Slack_Notification:
     permissions:
       contents: read
       id-token: write
-    needs: [azure_VM_start, azure_AKS_start]
+    needs: [azure_VM_stop, azure_AKS_stop,]
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Send GitHub Action trigger data to Slack workflow
+      # if: always()
+      id: slack
+      uses: slackapi/slack-github-action@v1.19.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: '#azure-notifications'
+        # For posting a rich message using Block Kit
+        payload: |
+          {
+            "text": "Azure Resources are Stopped succesfully\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "blocks": [
+              {
+               "type": "section",
+                "text": {
+                 "type": "mrkdwn",
+                  "text": "Azure Resources are Stopped succesfully\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  Resources_Status_Report:
+    permissions:
+      contents: read
+      id-token: write
+    needs: [Slack_Notification]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -156,103 +207,57 @@ jobs:
         echo " " >> resources.html
         az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
     
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v3
-      with:
-        name: my-artifact
-        path: resources.html
-        retention-days: 15
-
-    # - name: Commit files
-    #   id: commit
-    #   run: |
-    #     git config --local user.email "devopshemant@gmail.com"
-    #     git config --local user.name "devops-hemant"
-    #     git add resources.html
-    #     git commit -m "Add changes" -a
-    #   shell: bash
-    # - name: Push changes
-    #   uses: ad-m/github-push-action@master
+    # - name: 'Upload Artifact'
+    #   uses: actions/upload-artifact@v3
     #   with:
-    #      github_token: ${{ secrets.MY_TOKEN }}
-    #      branch: ${{ github.ref }}
+    #     name: my-artifact
+    #     path: resources.html
+    #     retention-days: 7
 
-  Slack_Notification:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [azure_VM_start, azure_AKS_start, Resources_Status_Check]
-    # if: always()
-    runs-on: ubuntu-latest
-    steps:
+    - name: send slack Slack_Notification
+      run: |
+        curl -F file=@resources.html -F "initial_comment=Azure Resources Status Table" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
 
-    - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
-      id: slack
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: '#azure-notifications'
-        # For posting a rich message using Block Kit
-        payload: |
-          {
-            "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "GitHub Action result: Azure Resources are start ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
-              }
-            ]
-          }
-      env:
-        # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  # Azure_Resources_Status:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   needs: [Resources_Status_Check, Slack_Notification]
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-  Azure_Resources_Status:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [Resources_Status_Check, Slack_Notification]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
+  #   - name: Download a single artifact
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: my-artifact
+    
+  #   - name: create variable  
+  #     run:  
+  #       RESOURCES=$(cat resources.html)
 
-    - name: Download a single artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: my-artifact
-
-    - name: create a variables
-      env: 
-        RESOURCES: 'cat resources.html'
-
-    - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
-      id: slack
-      uses: slackapi/slack-github-action@v1.19.0
-      with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: '#azure-notifications'
-        # For posting a rich message using Block Kit
-        payload: |
-          {
-            "text": "Use link to check status report:\n${{ env.RESOURCES }}",
-            "blocks": [
-              {
-               "type": "section",
-                "text": {
-                 "type": "mrkdwn",
-                  "text": "Use link to check status report:\n${{ env.RESOURCES }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
+  #   - name: Send GitHub Action trigger data to Slack workflow
+  #     # if: always()
+  #     id: slack
+  #     uses: slackapi/slack-github-action@v1.19.0
+  #     with:
+  #       # Slack channel id, channel name, or user id to post message.
+  #       # See also: https://api.slack.com/methods/chat.postMessage#channels
+  #       channel-id: '#azure-notifications'
+  #       # For posting a rich message using Block Kit
+  #       payload: |
+  #         {
+  #           "text": "Use link to check status report:\n${RESOURCES}",
+  #           "blocks": [
+  #             {
+  #              "type": "section",
+  #               "text": {
+  #                "type": "mrkdwn",
+  #                 "text": "Use link to check status report:\n${RESOURCES}"
+  #               }
+  #             }
+  #           ]
+  #         }
+  #     env:
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #       # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
