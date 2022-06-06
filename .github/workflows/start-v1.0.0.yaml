@@ -106,6 +106,19 @@ jobs:
         echo " " >> resources.html
         az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
 
-    - name: send slack Slack_Notification
-      run: |
-        curl -H 'Content-type: application/json' --data '{"text":"Hello,\n World!"}' -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+    # - name: send slack Slack_Notification
+    #   run: |
+    #     curl -H 'Content-type: application/json' --data '{"text":"Hello,\n World!"}' -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+
+    - name: Post to a Slack channel
+      id: slack
+      uses: slackapi/slack-github-action@v1.19.0
+      with:
+        # Slack channel id, channel name, or user id to post message.
+        # See also: https://api.slack.com/methods/chat.postMessage#channels
+        channel-id: 'azure-notifications'
+        # For posting a simple plain text message
+        slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+        file: resources.html
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_ACCESS }}
