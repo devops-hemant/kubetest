@@ -180,7 +180,7 @@ jobs:
       contents: read
       id-token: write
     needs: [azure_VM_stop, azure_AKS_stop,] #[Slack_Notification]
-    if: always()
+    # if: always()
     runs-on: ubuntu-latest
     steps:
 
