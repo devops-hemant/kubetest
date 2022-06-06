@@ -140,17 +140,51 @@ jobs:
     #      github_token: ${{ secrets.MY_TOKEN }}
     #      branch: ${{ github.ref }}
 
-  Slack_Notification:
+  # Slack_Notification:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   needs: [azure_VM_start, azure_AKS_start,]
+  #   # if: always()
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+  #   - name: Send GitHub Action trigger data to Slack workflow
+  #     # if: always()
+  #     id: slack
+  #     uses: slackapi/slack-github-action@v1.19.0
+  #     with:
+  #       # Slack channel id, channel name, or user id to post message.
+  #       # See also: https://api.slack.com/methods/chat.postMessage#channels
+  #       channel-id: '#azure-notifications'
+  #       # For posting a rich message using Block Kit
+  #       payload: |
+  #         {
+  #           "text": "Azure Resources are Running succesfully\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+  #           "blocks": [
+  #             {
+  #              "type": "section",
+  #               "text": {
+  #                "type": "mrkdwn",
+  #                 "text": "Azure Resources are Running succesfully\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+  #               }
+  #             }
+  #           ]
+  #         }
+  #     env:
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #       # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
+
+  Resources_Status_Report:
     permissions:
       contents: read
       id-token: write
-    needs: [azure_VM_start, azure_AKS_start,]
-    # if: always()
+    needs: [azure_VM_start, azure_AKS_start,] #[Slack_Notification]
+    if: always()
     runs-on: ubuntu-latest
     steps:
 
     - name: Send GitHub Action trigger data to Slack workflow
-      # if: always()
       id: slack
       uses: slackapi/slack-github-action@v1.19.0
       with:
@@ -174,15 +208,6 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
-
-  Resources_Status_Report:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [Slack_Notification]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
 
     # Logs in with your Azure credentials
     - name: Azure login
