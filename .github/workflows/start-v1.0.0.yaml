@@ -22,8 +22,9 @@ jobs:
       id-token: write
     if: always()
     runs-on: ubuntu-latest
+    outputs: 
+      vm_job_satus: ${{ job.status }}
     steps:
-
     # Logs in with your Azure credentials
     - name: Azure login
       uses: azure/login@v1.4.3
@@ -44,7 +45,9 @@ jobs:
             az vm start -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
-    # - name: start_azure_vm_faild
+      
+
+
         
   Azure_AKS_Start:
     permissions:
@@ -52,6 +55,8 @@ jobs:
       id-token: write
     if: always()
     runs-on: ubuntu-latest
+    outputs: 
+      aks_job_satus: ${{ job.status }}
     steps:
 
     # Logs in with your Azure credentials
@@ -110,4 +115,4 @@ jobs:
 
     - name: send slack Slack_Notification
       run: |
-        curl -F file=@resources.html -F "initial_comment=${{ job.status }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        curl -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }}\nAzuer AKS start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
