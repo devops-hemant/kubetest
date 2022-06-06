@@ -26,26 +26,26 @@ jobs:
       vm_job_satus: ${{ job.status }}
     steps:
     # Logs in with your Azure credentials
-    - name: Azure login
-      uses: azure/login@v1.4.3
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    # - name: Azure login
+    #   uses: azure/login@v1.4.3
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
     # Run commads to start the azure resources
     - name: start_azure_vm
       run: |
-        #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
-        #for vmrg in ${rgstr[@]}; do
-          #echo "running command with ResourceGroup $vmrg"
-          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
-          for vm in ${vmstr[@]}; do
-            echo "starting Azure VM $vm"
-            az vm start -g ${{ env.ResourceGroup }} -n $vm
-          done  
-        #done
-      
+        # #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        # #for vmrg in ${rgstr[@]}; do
+        #   #echo "running command with ResourceGroup $vmrg"
+        #   vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
+        #   for vm in ${vmstr[@]}; do
+        #     echo "starting Azure VM $vm"
+        #     az vm start -g ${{ env.ResourceGroup }} -n $vm
+        #   done  
+        # #done
+        echo "test"
 
 
         
@@ -60,26 +60,25 @@ jobs:
     steps:
 
     # Logs in with your Azure credentials
-    - name: Azure login
-      uses: azure/login@v1.4.3
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+    # - name: Azure login
+    #   uses: azure/login@v1.4.3
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
 
     - name: start_azure_aks_cluster
       run: |
-        #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
-        #for krg in ${krgstr[@]}; do
-          #echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
-          for kcluster in ${kclusterstr[@]}; do
-            echo "starting Azure AKS $kcluster"
-            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
-          done  
-        #done
-
-    # - name: start_azure_aks_faild
+        # #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        # #for krg in ${krgstr[@]}; do
+        #   #echo "running command with ResourceGroup $krg"
+        #   kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
+        #   for kcluster in ${kclusterstr[@]}; do
+        #     echo "starting Azure AKS $kcluster"
+        #     az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+        #   done  
+        # #done
+        echo "test2"
 
   Slack_Notification:
     permissions:
@@ -115,4 +114,4 @@ jobs:
 
     - name: send slack Slack_Notification
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello,\n World!"}' -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }} \n Azuer AKS start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        curl -F file=@resources.html -F 'initial_comment="Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }} \n Azuer AKS start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}"' -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
