@@ -80,7 +80,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    needs: [Slack_Notification]
+    needs: [Azure_VM_Start, Azure_AKS_Start]
     if: always()
     runs-on: ubuntu-latest
     steps:
