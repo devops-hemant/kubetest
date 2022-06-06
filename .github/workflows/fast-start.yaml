@@ -5,7 +5,7 @@ on:
   #   branches:
   #     - main
   schedule:
-    - cron: '30 2 * * 1-5'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
+    - cron: '0 23 * * 0'      # Start timing is set as per UTC time zone as based on 08:00 AM IST
   workflow_dispatch:
 
 env:
@@ -175,7 +175,7 @@ jobs:
   #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   #       # SLACK_ACCESS: ${{ secrets.SLACK_ACCESS}}
 
-  Resources_Status_Report:
+  Slack_Notification:
     permissions:
       contents: read
       id-token: write
