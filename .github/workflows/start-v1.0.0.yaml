@@ -108,4 +108,4 @@ jobs:
 
     - name: send slack Slack_Notification
       run: |
-        curl -H 'Content-type: application/json' --data '{"text":"Hello,\n World!"}' -F file=@resources.html -F "initial_comment=Azuer VMs start job status: `n${{ needs.Azure_VM_Start.outputs.vm_job_satus }}" -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}"  -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        curl -H 'Content-type: application/json' --data '{"text":"Hello,\n World!"}' -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
