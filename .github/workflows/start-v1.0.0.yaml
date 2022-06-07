@@ -14,7 +14,6 @@ env:
   AKS_TAG_KEY: "foo"
   AKS_TAG_VALUE: "bar"
   ResourceGroup: "RG1"
-  new_line: "\n"
 
 jobs:
   Azure_VM_Start:
@@ -88,8 +87,10 @@ jobs:
     needs: [Azure_VM_Start, Azure_AKS_Start]
     if: always()
     runs-on: ubuntu-latest
+    env:
+      new_line: "\n"
+    
     steps:
-
     # Logs in with your Azure credentials
     - name: Azure login
       uses: azure/login@v1.4.3
@@ -101,11 +102,11 @@ jobs:
     - name: Resource_Status_Repot
       run: |
         date > resources.html
-        # az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
-        # echo " " >> resources.html
-        # echo "=============================================================================================================================" >> resources.html
-        # echo " " >> resources.html
-        # az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
 
     - name: send slack Slack_Notification
       run: |
