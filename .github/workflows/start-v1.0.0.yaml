@@ -14,6 +14,7 @@ env:
   AKS_TAG_KEY: "foo"
   AKS_TAG_VALUE: "bar"
   ResourceGroup: "RG1"
+  new_line: "\n"
 
 jobs:
   Azure_VM_Start:
@@ -108,8 +109,12 @@ jobs:
 
     - name: send slack Slack_Notification
       run: |
-        # curl -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }}\nAzuer VMs start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
-        curl -v -F key1=value1 -F upload=@resources.html -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        curl -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }} ${{ env.new_line }}Azuer VMs start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+        # curl -v -F key1=value1 -F upload=@resources.html -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+    
+    
+    
+    
     # - name: Post to a Slack channel
     #   id: slack
     #   uses: slackapi/slack-github-action@v1.19.0
