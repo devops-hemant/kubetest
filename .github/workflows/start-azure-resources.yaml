@@ -1,0 +1,110 @@
+name: start azure resources
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  schedule:
+    - cron: '0 23 * * 0'      # Start timing is set as per UTC time zone as based on 08:00 AM JST
+  workflow_dispatch:
+
+env:
+  VM_TAG_KEY: "auto"
+  VM_TAG_VALUE: "yes"
+  AKS_TAG_KEY: "foo"
+  AKS_TAG_VALUE: "bar"
+  ResourceGroup: "RG1"
+
+jobs:
+  Azure_VM_Start:
+    permissions:
+      contents: read
+      id-token: write
+    if: always()
+    runs-on: ubuntu-latest
+    outputs: 
+      vm_job_satus: ${{ job.status }}
+    steps:
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Run commads to start the azure resources
+    - name: start_azure_vm
+      run: |
+        #rgstr=$(az vm list --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for vmrg in ${rgstr[@]}; do
+          #echo "running command with ResourceGroup $vmrg"
+          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
+          for vm in ${vmstr[@]}; do
+            echo "starting Azure VM $vm"
+            az vm start -g ${{ env.ResourceGroup }} -n $vm
+          done  
+        #done
+
+        
+  Azure_AKS_Start:
+    permissions:
+      contents: read
+      id-token: write
+    if: always()
+    runs-on: ubuntu-latest
+    outputs: 
+      aks_job_satus: ${{ job.status }}
+    steps:
+
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+
+    - name: start_azure_aks_cluster
+      run: |
+        #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for krg in ${krgstr[@]}; do
+          #echo "running command with ResourceGroup $krg"
+          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
+          for kcluster in ${kclusterstr[@]}; do
+            echo "starting Azure AKS $kcluster"
+            az aks start -g ${{ env.ResourceGroup }} -n $kcluster
+          done  
+        #done
+
+  Slack_Notification:
+    permissions:
+      contents: read
+      id-token: write
+    needs: [Azure_VM_Start, Azure_AKS_Start]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      new_line: "\n"
+    
+    steps:
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Resource_Status_Repot
+      run: |
+        date > resources.html
+        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+
+    - name: send slack Slack_Notification
+      run: |
+        curl -F file=@resources.html -F "initial_comment=Azuer VMs start job status: ${{ needs.Azure_VM_Start.outputs.vm_job_satus }} ${{ env.new_line }}Azuer AKS start job status: ${{ needs.Azure_AKS_Start.outputs.aks_job_satus }}" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
