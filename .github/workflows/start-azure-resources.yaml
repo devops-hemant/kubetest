@@ -43,7 +43,15 @@ jobs:
           for cvm in ${vmstr[@]}; do
             echo "start Azure VM $cvm"
             az vm start -g ${{ env.ResourceGroup }} -n $cvm
-            az vm run-command invoke -g ${{ env.ResourceGroup }} -n $cvm --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh"            
+            az vm run-command invoke -g ${{ env.ResourceGroup }} -n $cvm --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" > result.txt
+            cat result.txt | grep "nodetool: Failed to connect"
+            if [[ "$?" != "0" ]]
+            then
+              echo "master is running now"
+            else
+              echo "cluster not started exit the process"
+              exit 0
+            fi          
           done      
 
     # # Run commads to start the azure resources
