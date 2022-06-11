@@ -40,7 +40,7 @@ jobs:
     - name: start_cassandramaster
       run: |
           tee -a ~/testscript.sh << END
-          !/bin/bash -x     
+          #!/bin/bash -x     
           echo "start Azure VM Mycassandra"
           az vm start -g FREERG -n Mycassandra
           az vm run-command invoke -g ${{ env.ResourceGroup }} -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" | grep "nodetool: Failed to connect"
