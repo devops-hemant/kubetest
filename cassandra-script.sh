@@ -14,5 +14,4 @@ then
     echo "master is running now"
 else
     echo "cluster not started exit the process"
-    exit 1
 fi
