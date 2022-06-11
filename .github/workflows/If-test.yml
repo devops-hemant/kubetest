@@ -1,0 +1,27 @@
+name: If-test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  Azure_VM_start:
+    permissions:
+      contents: read
+      id-token: write
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: start_cassandramaster
+      run: |
+          echo "start Azure VM Mycassandra"
+          if [ "$?" != "0" ]; 
+          then 
+            echo "master is running now"; 
+          else 
+            echo "cluster not started exit the process";  
+          fi         
