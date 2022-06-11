@@ -13,7 +13,7 @@ env:
   VM_TAG_VALUE: "yes"
   AKS_TAG_KEY: "autostartstop"
   AKS_TAG_VALUE: "yes"
-  ResourceGroup: "iam-experiments"
+  ResourceGroup: "freeRG"
   CASSANDRA_MASTER_KEY: "cassandra"
   CASSANDRA_MASTER_VALUE: "master"
 
