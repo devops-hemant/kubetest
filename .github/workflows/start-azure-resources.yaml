@@ -48,7 +48,7 @@ jobs:
             echo "master is running now"; 
           else 
             echo "cluster not started exit the process"; 
-            exit 1; 
+            #exit 1; 
           fi         
 
     # # Run commads to start the azure resources
