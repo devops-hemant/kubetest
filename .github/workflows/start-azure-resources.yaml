@@ -40,13 +40,16 @@ jobs:
     - name: start_cassandramaster
       run: |
           #!/bin/bash -x     
-          # cvmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.CASSANDRA_MASTER_KEY }} == '${{ env.CASSANDRA_MASTER_VALUE }}'].{Name:name}" -o tsv)
-          # for cvm in ${cvmstr[@]}; do
-            echo "start Azure VM Mycassandra"
-            az vm start -g FREERG -n Mycassandra
-            az vm run-command invoke -g ${{ env.ResourceGroup }} -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" | grep "nodetool: Failed to connect"
-            if [ "$?" != "0" ]; then echo "master is running now"; else echo "cluster not started exit the process"; exit 1; fi         
-          # done      
+          echo "start Azure VM Mycassandra"
+          az vm start -g FREERG -n Mycassandra
+          az vm run-command invoke -g ${{ env.ResourceGroup }} -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" | grep "nodetool: Failed to connect"
+          if [ "$?" != "0" ]; 
+          then 
+            echo "master is running now"; 
+          else 
+            echo "cluster not started exit the process"; 
+            exit 1; 
+          fi         
 
     # # Run commads to start the azure resources
     # - name: start_azure_vm
