@@ -18,6 +18,7 @@ jobs:
 
     - name: start_cassandramaster
       run: |
+          tee -a ~/testscript.sh << END
           echo "start Azure VM Mycassandra"
           sdghfdtht
           if [ "$?" -eq "0" ]; 
@@ -25,4 +26,7 @@ jobs:
             echo "cluster not started exit the process"; 
           else 
             echo "master is running now" ;  
-          fi         
+          fi
+          END
+
+          cat ~/testscript.sh         
