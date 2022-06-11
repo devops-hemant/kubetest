@@ -37,16 +37,11 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         # creds: ${{ secrets.AZURE_SP_EXPERIMENTS_RG }}
 
-    - name: cassandra script
-      uses: azure/CLI@v1
-      with:
-        azcliversion: 2.30.0
-        inlineScript: |
+    - name: cassandra-start
+      run: |
           # echo "start Azure VM Mycassandra"
           
           # az vm start -g FREERG -n Mycassandra
-          
-          az vm list -o table
 
           echo "checking cassandra status"
           cassndra-status=$(az vm run-command invoke -g FREERG -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh")
