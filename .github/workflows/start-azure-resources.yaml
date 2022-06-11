@@ -39,21 +39,23 @@ jobs:
 
     - name: start_cassandramaster
       run: |
-          tee -a ~/testscript.sh << END
-          #!/bin/bash -x     
           echo "start Azure VM Mycassandra"
+          
           az vm start -g FREERG -n Mycassandra
+          
+          echo "checking cassandra status"
           az vm run-command invoke -g ${{ env.ResourceGroup }} -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" | grep "nodetool: Failed to connect"
-          if [ "$?" -eq "0" ]; 
-          then 
-            echo "cluster not started exit the process"; 
-            exit 1; 
-          else 
-            echo "Master is running now";  
-          fi         
-          END
+          
+          echo "status is : $?"
 
-          sh ~/testscript.sh
+          # if [ "$?" -eq "0" ]; 
+          # then 
+          #   echo "cluster not started exit the process"; 
+          #   exit 1; 
+          # else 
+          #   echo "Master is running now";  
+          # fi         
+
 
     # # Run commads to start the azure resources
     # - name: start_azure_vm
