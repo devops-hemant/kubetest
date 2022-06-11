@@ -43,7 +43,7 @@ jobs:
           for cvm in ${vmstr[@]}; do
             echo "start Azure VM $cvm"
             az vm start -g ${{ env.ResourceGroup }} -n $cvm
-            az vm run-command invoke -g ${{ env.ResourceGroup }} -n $cvm --command-id RunShellScript --scripts "~/script.sh"            
+            az vm run-command invoke -g ${{ env.ResourceGroup }} -n $cvm --command-id RunShellScript --scripts "usr/local/cassandra/script.sh"            
           done      
 
     # # Run commads to start the azure resources
