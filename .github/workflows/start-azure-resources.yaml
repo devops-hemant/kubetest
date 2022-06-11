@@ -49,11 +49,11 @@ jobs:
           az vm list -o table
 
           echo "checking cassandra status"
-          az vm run-command invoke -g FREERG -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" --unhandled-rejections=strict | grep "nodetool"
+          az vm run-command invoke -g FREERG -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh" -o yaml | grep nodetool
           # cat result.txt | grep "nodetool: Failed to connect"
-          # i=$?
+          i=$?
           echo "cassandra status check done"
-          # echo "status is : $i"
+          echo "status is : $i"
 
           # if [ "$?" -eq "0" ]; 
           # then 
