@@ -45,7 +45,7 @@ jobs:
 
           echo "checking cassandra status"
           cassndrastatus=$(az vm run-command invoke -g FREERG -n Mycassandra --command-id RunShellScript --scripts "/usr/local/cassandra/script.sh")
-          cat $cassndra-status | grep "nodetool: Failed to connect"
+          cat $cassndrastatus | grep "nodetool: Failed to connect"
           i=$?
           echo "cassandra status check done"
           echo "status is : $i"
