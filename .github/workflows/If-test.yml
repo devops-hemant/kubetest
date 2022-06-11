@@ -28,5 +28,5 @@ jobs:
             echo "master is running now" ;  
           fi
           END
-
+          echo "showing test script data below\n"  
           cat ~/testscript.sh         
