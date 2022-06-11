@@ -9,14 +9,14 @@ on:
   workflow_dispatch:
 
 env:
-  VM_TAG_KEY: "auto"
+  VM_TAG_KEY: "autostartstop"
   VM_TAG_VALUE: "yes"
-  AKS_TAG_KEY: "foo"
-  AKS_TAG_VALUE: "bar"
-  ResourceGroup: "RG1"
+  AKS_TAG_KEY: "autostartstop"
+  AKS_TAG_VALUE: "yes"
+  ResourceGroup: "iam-experiments"
 
 jobs:
-  Azure_VM_Stop:
+  Azure_VM_stop:
     permissions:
       contents: read
       id-token: write
@@ -32,7 +32,8 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
+        # creds: ${{ secrets.AZURE_SP_EXPERIMENTS_RG }}
+
     # Run commads to stop the azure resources
     - name: stop_azure_vm
       run: |
@@ -41,69 +42,72 @@ jobs:
           #echo "running command with ResourceGroup $vmrg"
           vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{Name:name}" -o tsv)
           for vm in ${vmstr[@]}; do
-            echo "stopping Azure VM $vm"
+            echo "stop Azure VM $vm"
             az vm stop -g ${{ env.ResourceGroup }} -n $vm
           done  
         #done
+
         
-  Azure_AKS_Stop:
-    permissions:
-      contents: read
-      id-token: write
-    if: always()
-    runs-on: ubuntu-latest
-    outputs: 
-      aks_job_satus: ${{ job.status }}
-    steps:
+  # Azure_AKS_stop:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   outputs: 
+  #     aks_job_satus: ${{ job.status }}
+  #   steps:
 
-    # Logs in with your Azure credentials
-    - name: Azure login
-      uses: azure/login@v1.4.3
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #   # Logs in with your Azure credentials
+  #   - name: Azure login
+  #     uses: azure/login@v1.4.3
+  #     with:
+  #       # client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       creds: ${{ secrets.AZURE_SP_EXPERIMENTS_RG }}        
 
-    - name: stop_azure_aks_cluster
-      run: |
-        #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
-        #for krg in ${krgstr[@]}; do
-          #echo "running command with ResourceGroup $krg"
-          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
-          for kcluster in ${kclusterstr[@]}; do
-            echo "stopping Azure AKS $kcluster"
-            az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
-          done  
-        #done
+  #   - name: stop_azure_aks_cluster
+  #     run: |
+  #       #krgstr=$(az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+  #       #for krg in ${krgstr[@]}; do
+  #         #echo "running command with ResourceGroup $krg"
+  #         kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{Name:name}" -o tsv)
+  #         for kcluster in ${kclusterstr[@]}; do
+  #           echo "stop Azure AKS $kcluster"
+  #           az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
+  #         done  
+  #       #done
 
-  Slack_Notification:
-    permissions:
-      contents: read
-      id-token: write
-    needs: [Azure_VM_stop, Azure_AKS_stop]
-    if: always()
-    runs-on: ubuntu-latest
-    env:
-      new_line: "\n"
+  # Slack_Notification:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   needs: [Azure_VM_stop, Azure_AKS_stop]
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     new_line: "\n"
     
-    steps:
-    # Logs in with your Azure credentials
-    - name: Azure login
-      uses: azure/login@v1.4.3
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   steps:
+  #   # Logs in with your Azure credentials
+  #   - name: Azure login
+  #     uses: azure/login@v1.4.3
+  #     with:
+  #       # client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       creds: ${{ secrets.AZURE_SP_EXPERIMENTS_RG }}
 
-    - name: Resource_Status_Repot
-      run: |
-        date > resources.html
-        az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
-        echo " " >> resources.html
-        echo "=============================================================================================================================" >> resources.html
-        echo " " >> resources.html
-        az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+  #   - name: Resource_Status_Repot
+  #     run: |
+  #       date > resources.html
+  #       az vm list -d --query "[?tags.${{ env.VM_TAG_KEY }} == '${{ env.VM_TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
+  #       echo " " >> resources.html
+  #       echo "=============================================================================================================================" >> resources.html
+  #       echo " " >> resources.html
+  #       az aks list --query "[?tags.${{ env.AKS_TAG_KEY }} == '${{ env.AKS_TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
 
-    - name: send slack Slack_Notification
-      run: |
-        curl -F file=@resources.html -F "initial_comment=Azuer VMs stop job status: ${{ needs.Azure_VM_stop.outputs.vm_job_satus }} ${{ env.new_line }}Azuer AKS stop job status: ${{ needs.Azure_AKS_stop.outputs.aks_job_satus }} ${{ env.new_line }} Check the updated resources table below" -F channels=azure-notifications -H "Authorization: Bearer ${{ secrets.SLACK_ACCESS }}" https://slack.com/api/files.upload
+  #   - name: send slack Slack_Notification
+  #     run: |
+  #       curl -F file=@resources.html -F "initial_comment=Azure VMs stop job status: ${{ needs.Azure_VM_stop.outputs.vm_job_satus }} ${{ env.new_line }}Azure AKS stop job status: ${{ needs.Azure_AKS_stop.outputs.aks_job_satus }}" -F channels=mag-devops-notification -H "Authorization: Bearer ${{ secrets.SLACK_NOTIFICATION }}" https://slack.com/api/files.upload
