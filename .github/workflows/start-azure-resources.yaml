@@ -38,7 +38,8 @@ jobs:
         # creds: ${{ secrets.AZURE_SP_EXPERIMENTS_RG }}
 
     - name: start_cassandramaster
-      run: |     
+      run: |
+          #!/bin/bash -x     
           # cvmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.CASSANDRA_MASTER_KEY }} == '${{ env.CASSANDRA_MASTER_VALUE }}'].{Name:name}" -o tsv)
           # for cvm in ${cvmstr[@]}; do
             echo "start Azure VM Mycassandra"
