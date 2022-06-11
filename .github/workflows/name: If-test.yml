@@ -19,10 +19,9 @@ jobs:
     - name: start_cassandramaster
       run: |
           echo "start Azure VM Mycassandra"
-          echo "$?"
-          if [ "$?" != "0" ]; 
+          if [ "$?" -eq "0" ]; 
           then 
-            echo "master is running now"; 
+            echo "cluster not started exit the process"; 
           else 
-            echo "cluster not started exit the process";  
+            echo "master is running now" ;  
           fi         
