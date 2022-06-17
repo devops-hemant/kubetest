@@ -1,0 +1,102 @@
+name: dev stop azure resources
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  schedule:
+    - cron: '0 23 * * 0'      # stop timing is set as per UTC time zone as based on 08:00 AM JST
+  workflow_dispatch:
+
+env:
+  TAG_KEY: "autostop"
+  TAG_VALUE: "yes"
+  ResourceGroup: "iam-dev-jpe-rg"
+
+jobs:
+  Azure_VM_stop:
+    permissions:
+      contents: read
+      id-token: write
+    if: always()
+    runs-on: ubuntu-latest
+    outputs: 
+      vm_job_satus: ${{ job.status }}
+    steps:
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}
+
+    # Run commads to stop the azure resources
+    - name: stop_azure_vm_with_cassandra_cluster
+      run: |
+        #rgstr=$(az vm list --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for vmrg in ${rgstr[@]}; do
+          #echo "running command with ResourceGroup $vmrg"
+          vmstr=$(az vm list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{Name:name}" -o tsv)
+          for vm in ${vmstr[@]}; do
+            echo "stop Azure VM $vm"
+            az vm stop -g ${{ env.ResourceGroup }} -n $vm
+            az vm deallocate -g ${{ env.ResourceGroup }} -n $vm
+          done  
+        #done
+
+        
+  Azure_AKS_stop:
+    permissions:
+      contents: read
+      id-token: write
+    if: always()
+    runs-on: ubuntu-latest
+    outputs: 
+      aks_job_satus: ${{ job.status }}
+    steps:
+
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}        
+
+    - name: stop_azure_aks_cluster
+      run: |
+        #krgstr=$(az aks list --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{Group:resourceGroup}" -o tsv)
+        #for krg in ${krgstr[@]}; do
+          #echo "running command with ResourceGroup $krg"
+          kclusterstr=$(az aks list -g ${{ env.ResourceGroup }} --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{Name:name}" -o tsv)
+          for kcluster in ${kclusterstr[@]}; do
+            echo "stop Azure AKS $kcluster"
+            az aks stop -g ${{ env.ResourceGroup }} -n $kcluster
+          done  
+        #done
+
+  Slack_Notification:
+    permissions:
+      contents: read
+      id-token: write
+    needs: [Azure_VM_stop, Azure_AKS_stop]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      new_line: "\n"
+    steps:
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}
+
+    - name: Resource_Status_Repot
+      run: |
+        date > resources.html
+        az vm list -d --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{VM_Name:name ResourceGroup:resourceGroup PowerState:powerState Location:location PublicIP:publicIps}" -o table >> resources.html
+        echo " " >> resources.html
+        echo "=============================================================================================================================" >> resources.html
+        echo " " >> resources.html
+        az aks list --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
+
+    - name: send slack Slack_Notification
+      run: |
+        curl -F file=@resources.html -F "initial_comment=Dev Environment${{ env.new_line }}Azure VMs stop job status: ${{ needs.Azure_VM_stop.outputs.vm_job_satus }} ${{ env.new_line }}Azure AKS stop job status: ${{ needs.Azure_AKS_stop.outputs.aks_job_satus }}" -F channels=mag-devops-notification -H "Authorization: Bearer ${{ secrets.SLACK_NOTIFICATION }}" https://slack.com/api/files.upload

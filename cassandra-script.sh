@@ -12,6 +12,9 @@ done
 if [[ "$l" -le "3" ]]
 then
     echo "master is running now"
+    echo "success" > /tmp/cassandra-status.txt
 else
     echo "cluster not started exit the process"
+    echo "failed" > /tmp/cassandra-status.txt
+    exit 1
 fi
