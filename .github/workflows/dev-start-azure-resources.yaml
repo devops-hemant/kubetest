@@ -27,7 +27,9 @@ jobs:
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
-        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     
     - name: start_cassandra_master
       run: |      
@@ -115,7 +117,9 @@ jobs:
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
-        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     # Run commads to start the azure resources
     - name: start_azure_vm
@@ -144,7 +148,9 @@ jobs:
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
-        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}        
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
 
     - name: start_azure_aks_cluster
       run: |
@@ -173,7 +179,9 @@ jobs:
     - name: Azure login
       uses: azure/login@v1.4.3
       with:
-        creds: ${{ secrets.AZURE_SP_AUTOSTARTSTOP }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Resource_Status_Repot
       run: |
@@ -184,8 +192,8 @@ jobs:
         echo " " >> resources.html
         az aks list --query "[?tags.${{ env.TAG_KEY }} == '${{ env.TAG_VALUE }}'].{AKS_Name:name ResourceGroup:resourceGroup PowerState:powerState.code Location:location URL:fqdn}" -o table >> resources.html
 
-    - name: send slack Slack_Notification
-      run: |
-        curl -F file=@resources.html -F "initial_comment=Cassandra cluster start job status: ${{ needs.Cassandra_cluster_start.outputs.cassandra_job_satus }} ${{ env.new_line }}Azure VMs start job status: ${{ needs.Azure_VM_start.outputs.vm_job_satus }} ${{ env.new_line }}Azure AKS start job status: ${{ needs.Azure_AKS_start.outputs.aks_job_satus }}" -F channels=mag-devops-notification -H "Authorization: Bearer ${{ secrets.SLACK_NOTIFICATION }}" https://slack.com/api/files.upload
+    # - name: send slack Slack_Notification
+    #   run: |
+    #     curl -F file=@resources.html -F "initial_comment=Cassandra cluster start job status: ${{ needs.Cassandra_cluster_start.outputs.cassandra_job_satus }} ${{ env.new_line }}Azure VMs start job status: ${{ needs.Azure_VM_start.outputs.vm_job_satus }} ${{ env.new_line }}Azure AKS start job status: ${{ needs.Azure_AKS_start.outputs.aks_job_satus }}" -F channels=mag-devops-notification -H "Authorization: Bearer ${{ secrets.SLACK_NOTIFICATION }}" https://slack.com/api/files.upload
 
 
