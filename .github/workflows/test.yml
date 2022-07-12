@@ -1,8 +1,8 @@
 name: test
 
 on:
-  schedule:
-    - cron: '*/2 * * * *'      # Start timing is set as per UTC time zone as based on 08:00 AM JST
+#  schedule:
+#    - cron: '*/2 * * * *'      # Start timing is set as per UTC time zone as based on 08:00 AM JST
 #    - cron: '30 14 * * 5'     # Stop timing is set as per UTC time zone as based on 08:00 PM IST
   workflow_dispatch:
 
