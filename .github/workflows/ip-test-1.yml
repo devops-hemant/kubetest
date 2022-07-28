@@ -6,7 +6,7 @@ on:
       value:
         description: "Please type text to print"
         required: true
-        type: value
+        type: string
 
 env:
   textdata: ${{ github.event.inputs.value }}
