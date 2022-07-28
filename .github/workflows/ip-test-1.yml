@@ -20,7 +20,6 @@ jobs:
 
     - name: print the data
       run:  |
-       # echo ${{ TEXT }}
         echo ${{ github.event.inputs.value }}
 
     
