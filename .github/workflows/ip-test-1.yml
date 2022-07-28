@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       value:
-        description: "Please text to print"
+        description: "Please type text to print"
         required: true
-        type: environment
+        type: value
 
 env:
   textdata: ${{ github.event.inputs.value }}
