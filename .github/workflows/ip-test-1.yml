@@ -1,0 +1,26 @@
+name: ip-test-1
+
+on:
+  workflow_dispatch:
+    inputs:
+      value:
+        description: "Please text to print"
+        required: true
+        type: environment
+
+env:
+  textdata: ${{ github.event.inputs.value }}
+
+
+# First, we clone from the selected branch and build the image
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: print the data
+      run:  |
+        echo ${{ textdata }}
+
+    
+    
