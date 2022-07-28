@@ -8,8 +8,8 @@ on:
         required: true
         type: string
 
-env:
-  textdata: ${{ github.event.inputs.value }}
+# env:
+#   TEXT: ${{ github.event.inputs.value }}
 
 
 # First, we clone from the selected branch and build the image
@@ -20,7 +20,8 @@ jobs:
 
     - name: print the data
       run:  |
-        echo ${{ textdata }}
+       # echo ${{ TEXT }}
+        echo ${{ github.event.inputs.value }}
 
     
     
