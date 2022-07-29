@@ -7,9 +7,13 @@ on:
         description: "Please type text to print"
         required: true
         type: string
-
-# env:
-#   TEXT: ${{ github.event.inputs.value }}
+      choice:
+        type: choice
+        description: Make a choice
+        options:
+        - foo
+        - bar
+        - baz
 
 
 # First, we clone from the selected branch and build the image
