@@ -13,7 +13,7 @@ on:
         required: false
         default: " "
         options:
-        - foo
+        - curl -s "https://magdevops.blob.core.windows.net/githubactions/stgImageVersion/version.txt?sp=racwdl&st=2022-07-19T11:40:35Z&se=2023-07-19T19:40:35Z&spr=https&sv=2021-06-08&sr=c&sig=73UmLXJsUSnmh8vQ4Sn%2F5Z0v6Q%2BmntLNA%2BEW1%2F2revI%3D" | tail -1
         - bar
         - baz
 
