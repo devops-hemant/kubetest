@@ -26,6 +26,7 @@ jobs:
     - name: print the data
       run:  |
         echo ${{ github.event.inputs.value }}
+        echo ${{ github.event.inputs.choice }}
 
     
     
