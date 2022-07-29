@@ -7,14 +7,18 @@ on:
         description: "Please type text to print"
         required: false
         type: string
-      choice:
-        type: choice
-        description: Make a choice
-        required: false
         options:
         - foo
         - bar
         - baz
+      # choice:
+      #   type: choice
+      #   description: Make a choice
+      #   required: false
+      #   options:
+      #   - foo
+      #   - bar
+      #   - baz
 
 
 # First, we clone from the selected branch and build the image
