@@ -12,9 +12,11 @@ on:
         description: Make a choice
         required: false
         options:
-        - foo
-        - bar
-        - baz
+        - custom-tag:
+          type: string
+        - system:
+          - bar
+          - baz
 
 
 # First, we clone from the selected branch and build the image
