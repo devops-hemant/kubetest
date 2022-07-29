@@ -30,8 +30,6 @@ jobs:
     - name: print the data
       id: step1
       run:  |
-        echo ${{ inputs.value }}
-        echo ${{ inputs.choice }}
         if [[ -z "${{ inputs.value }}" ]]
         then
           echo "No custom tags"
@@ -40,7 +38,7 @@ jobs:
           echo "::set-output name=test::${{ inputs.value }}"
         fi
 
-  job2:
+  deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
