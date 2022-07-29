@@ -11,12 +11,11 @@ on:
         type: choice
         description: Make a choice
         required: false
+        default: ""
         options:
-        - custom-tag:
-          type: string
-        - system:
-          - bar
-          - baz
+        - foo
+        - bar
+        - baz
 
 
 # First, we clone from the selected branch and build the image
@@ -29,9 +28,7 @@ jobs:
       run:  |
         echo ${{ inputs.value }}
         echo ${{ inputs.choice }}
-        echo "enter a text name"
-        read name
-        echo "name is $name"
+
 
     
     
