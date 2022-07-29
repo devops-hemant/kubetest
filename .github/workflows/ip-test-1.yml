@@ -5,11 +5,12 @@ on:
     inputs:
       value:
         description: "Please type text to print"
-        required: true
+        required: false
         type: string
       choice:
         type: choice
         description: Make a choice
+        required: false
         options:
         - foo
         - bar
