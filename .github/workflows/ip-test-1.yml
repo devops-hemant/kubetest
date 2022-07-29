@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       value:
-        description: "Please provide custom tags or use the go to google.com"
+        description: "Please provide custom tags or go to link"
         required: false
         type: string
       # choice:
