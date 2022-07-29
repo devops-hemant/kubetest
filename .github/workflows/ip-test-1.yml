@@ -11,7 +11,7 @@ on:
         type: choice
         description: Make a choice
         required: false
-        default: ""
+        default: " "
         options:
         - foo
         - bar
