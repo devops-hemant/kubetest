@@ -35,6 +35,7 @@ jobs:
           echo "No custom tags"
           echo "::set-output name=test::${{ inputs.choice }}"
         else
+          echo "Custom tags: ${{ inputs.choice }}"
           echo "::set-output name=test::${{ inputs.value }}"
         fi
 
