@@ -1,7 +1,7 @@
 name: ip-test-1
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       value:
         description: "Please type text to print"
