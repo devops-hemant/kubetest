@@ -7,15 +7,15 @@ on:
         description: "Please provide custom tags or go to https://demolink.com"
         required: false
         type: string
-      choice:
-        type: choice
-        description: Make a choice
-        required: false
-        default: " "
-        options:
-        - ${{ env.file }}
-        - bar
-        - baz
+      # choice:
+      #   type: choice
+      #   description: Make a choice
+      #   required: false
+      #   default: " "
+      #   options:
+      #   - ${{ env.file }}
+      #   - bar
+      #   - baz
 
 
 env:
@@ -46,6 +46,4 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - run: echo ${{needs.build.outputs.output1}} ${{needs.build.outputs.output2}}
-    
-    
+      - run: echo ${{needs.build.outputs.output1}} ${{needs.build.outputs.output2}} ${{ inputs.value }}
