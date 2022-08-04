@@ -1,4 +1,4 @@
-name: ip-test-1
+name: ip-test-deploy
 
 on:
   workflow_dispatch:
