@@ -33,8 +33,10 @@ jobs:
     - name: print the data
       id: step1
       run:  |
-        bash | ${{ env.file }}
-        # if [[ -z "${{ inputs.value }}" ]]ß
+        tagno=$(bash | ${{ env.file }})
+        echo ${tagno}
+
+        # if [[ -z "${{ inputs.value }}" ]]
         # then
         #   echo "No custom tags"
         #   echo "::set-output name=test::${{ inputs.choice }}"
