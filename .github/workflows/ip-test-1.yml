@@ -18,69 +18,71 @@ on:
       #   - baz
 
 
-env:
-  file: "curl -s 'https://magdevops.blob.core.windows.net/githubactions/stgImageVersion/version.txt?sp=racwdl&st=2022-07-19T11:40:35Z&se=2023-07-19T19:40:35Z&spr=https&sv=2021-06-08&sr=c&sig=73UmLXJsUSnmh8vQ4Sn%2F5Z0v6Q%2BmntLNA%2BEW1%2F2revI%3D' | tail -1"
+# env:
+#   file: "curl -s 'https://magdevops.blob.core.windows.net/githubactions/stgImageVersion/version.txt?sp=racwdl&st=2022-07-19T11:40:35Z&se=2023-07-19T19:40:35Z&spr=https&sv=2021-06-08&sr=c&sig=73UmLXJsUSnmh8vQ4Sn%2F5Z0v6Q%2BmntLNA%2BEW1%2F2revI%3D' | tail -1"
 
 # First, we clone from the selected branch and build the image
 jobs:
-  build:
+  # build:
+  #   runs-on: ubuntu-latest
+    # outputs:
+    #   output1: ${{ steps.step1.outputs.test }}
+    #   output2: ${{ steps.step2.outputs.test }}
+    
+    # steps:
+    # - name: print the data
+    #   id: step1
+    #   run:  |
+    #     tagno=$(bash | ${{ env.file }})
+    #     echo ${tagno}
+
+    #     if [[ -z "${{ inputs.value }}" ]]
+    #     then
+    #       echo "No custom tags"
+    #       echo "::set-output name=test::${{ inputs.choice }}"
+    #     else
+    #       echo "Custom tags: ${{ inputs.choice }}"
+    #       echo "::set-output name=test::${{ inputs.value }}"
+    #     fi
+  build2:
     runs-on: ubuntu-latest
     outputs:
-      output1: ${{ steps.step1.outputs.test }}
-      output2: ${{ steps.step2.outputs.test }}
-    
+      branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
     steps:
-    - name: print the data
-      id: step1
+
+    # - name: Environment check
+    #   run:  |
+    #     if [ "${{ github.event.inputs.target-env }}" = "PROD" ]
+    #         then
+    #         text="For production, please run the dedicated pipeline \"PROD-depoy-azure\""
+    #         echo "::error ::$text"
+    #         exit 1
+    #     fi
+    # - uses: actions/checkout@master
+
+    - name: get-branch-name
+      id: get-branch-name
       run:  |
-        tagno=$(bash | ${{ env.file }})
-        echo ${tagno}
+        TAG=$(echo ${GITHUB_REF#refs/heads/} | sed -e "s#/#-#g")
+        echo "##[set-output name=branch-name;]$(echo $TAG)"
+    # - name: Azure Registry login
+    #   uses: azure/docker-login@v1
+    #   with:
+    #     login-server: ${{ secrets.IMAGE_REGISTRY }}
+    #     username: ${{ secrets.IMAGE_REGISTRY_USERNAME }}
+    #     password: ${{ secrets.IMAGE_REGISTRY_PASSWORD }}
+  
+    # - name: Build and push
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     context: .
+    #     push: true
+    #     tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
 
-        # if [[ -z "${{ inputs.value }}" ]]
-        # then
-        #   echo "No custom tags"
-        #   echo "::set-output name=test::${{ inputs.choice }}"
-        # else
-        #   echo "Custom tags: ${{ inputs.choice }}"
-        #   echo "::set-output name=test::${{ inputs.value }}"
-        # fi
-  # build2:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
-  #   steps:
-
-  #   - name: Environment check
-  #     run:  |
-  #       if [ "${{ github.event.inputs.target-env }}" = "PROD" ]
-  #           then
-  #           text="For production, please run the dedicated pipeline \"PROD-depoy-azure\""
-  #           echo "::error ::$text"
-  #           exit 1
-  #       fi
-  #   - uses: actions/checkout@master
-
-  #   - name: get-branch-name
-  #     id: get-branch-name
-  #     run:  |
-  #       TAG=$(echo ${GITHUB_REF#refs/heads/} | sed -e "s#/#-#g")
-  #       echo "##[set-output name=branch-name;]$(echo $TAG)"
-  #   - name: Azure Registry login
-  #     uses: azure/docker-login@v1
-  #     with:
-  #       login-server: ${{ secrets.IMAGE_REGISTRY }}
-  #       username: ${{ secrets.IMAGE_REGISTRY_USERNAME }}
-  #       password: ${{ secrets.IMAGE_REGISTRY_PASSWORD }}
-
-  #   - name: Build and push
-  #     uses: docker/build-push-action@v2
-  #     with:
-  #       context: .
-  #       push: true
-  #       # build-args: |
-  #       #   sonarAccessKey=${{ secrets.SONARQUBE_ACCESS_KEY }}
-  #       #   branchName=${{ github.event.inputs.target-env }}
-  #       tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
+    - name: Build and push
+      if: ${{ -z "${{ inputs.value }}" }}
+      run: | 
+       echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
 
   # deploy:
