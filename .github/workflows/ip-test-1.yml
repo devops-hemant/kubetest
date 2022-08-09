@@ -46,7 +46,7 @@ jobs:
     #     fi
   build2:
     runs-on: ubuntu-latest
-    if: github.event.inputs.target-env = "PROD"
+    if: github.event.inputs.target-env == "PROD"
     outputs:
       branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
     steps:
