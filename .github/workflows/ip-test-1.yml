@@ -48,7 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
-      output1: ${{ steps.build-push
     steps:
 
     # - name: Environment check
