@@ -1,21 +1,21 @@
-name: ip-test-1
+name: ip-test-build-deploy
 
 on:
   workflow_dispatch:
     inputs:
       value:
-        description: "Please provide custom tags or go to https://demolink.com"
+        description: "Please provide custom tags or system will assign the tags automatically"
         required: false
         type: string
-      choice:
-        type: choice
-        description: Make a choice
-        required: false
-        default: " "
-        options:
-        - ${{ env.file }}
-        - bar
-        - baz
+      # choice:
+      #   type: choice
+      #   description: Make a choice
+      #   required: false
+      #   default: " "
+      #   options:
+      #   - ${{ env.file }}
+      #   - bar
+      #   - baz
 
 
 env:
@@ -33,19 +33,58 @@ jobs:
     - name: print the data
       id: step1
       run:  |
-        if [[ -z "${{ inputs.value }}" ]]
-        then
-          echo "No custom tags"
-          echo "::set-output name=test::${{ inputs.choice }}"
-        else
-          echo "Custom tags: ${{ inputs.choice }}"
-          echo "::set-output name=test::${{ inputs.value }}"
-        fi
+        echo ${{ env.file }}
+        # if [[ -z "${{ inputs.value }}" ]]
+        # then
+        #   echo "No custom tags"
+        #   echo "::set-output name=test::${{ inputs.choice }}"
+        # else
+        #   echo "Custom tags: ${{ inputs.choice }}"
+        #   echo "::set-output name=test::${{ inputs.value }}"
+        # fi
+  # build2:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
+  #   steps:
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - run: echo ${{needs.build.outputs.output1}} ${{needs.build.outputs.output2}}
+  #   - name: Environment check
+  #     run:  |
+  #       if [ "${{ github.event.inputs.target-env }}" = "PROD" ]
+  #           then
+  #           text="For production, please run the dedicated pipeline \"PROD-depoy-azure\""
+  #           echo "::error ::$text"
+  #           exit 1
+  #       fi
+  #   - uses: actions/checkout@master
+
+  #   - name: get-branch-name
+  #     id: get-branch-name
+  #     run:  |
+  #       TAG=$(echo ${GITHUB_REF#refs/heads/} | sed -e "s#/#-#g")
+  #       echo "##[set-output name=branch-name;]$(echo $TAG)"
+  #   - name: Azure Registry login
+  #     uses: azure/docker-login@v1
+  #     with:
+  #       login-server: ${{ secrets.IMAGE_REGISTRY }}
+  #       username: ${{ secrets.IMAGE_REGISTRY_USERNAME }}
+  #       password: ${{ secrets.IMAGE_REGISTRY_PASSWORD }}
+
+  #   - name: Build and push
+  #     uses: docker/build-push-action@v2
+  #     with:
+  #       context: .
+  #       push: true
+  #       # build-args: |
+  #       #   sonarAccessKey=${{ secrets.SONARQUBE_ACCESS_KEY }}
+  #       #   branchName=${{ github.event.inputs.target-env }}
+  #       tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
+
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - run: echo ${{needs.build.outputs.output1}} ${{needs.build.outputs.output2}}
     
     
