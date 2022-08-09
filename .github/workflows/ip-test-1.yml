@@ -46,6 +46,7 @@ jobs:
     #     fi
   build2:
     runs-on: ubuntu-latest
+    if: github.event.inputs.target-env = "PROD"
     outputs:
       branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
     steps:
@@ -80,12 +81,12 @@ jobs:
     #     tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
 
     - name: Build and push
-      if: ${{ inputs.value }} == string
+      if: inputs.value == string
       run: | 
        echo "tags: ${{ inputs.value }}"
     
     - name: Build2 and push2
-      if: ${{ inputs.value }} != string
+      if: faild
       run: | 
        echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
