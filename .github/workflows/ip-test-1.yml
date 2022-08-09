@@ -80,7 +80,7 @@ jobs:
     #     tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
 
     - name: Build and push
-      if: ${{ -z "${{ inputs.value }}" }}
+      if: ${{ inputs.value }} == string
       run: | 
        echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
