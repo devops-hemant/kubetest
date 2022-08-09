@@ -87,7 +87,7 @@ jobs:
        echo "tags: ${{ inputs.value }}"
     
     - name: build2-push2
-      if: ${{ steps.custom-tag.outcome }} != 'success'
+      if: steps.custom-tag.outcome != 'success'
       run: | 
        echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
