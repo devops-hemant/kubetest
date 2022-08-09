@@ -48,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       branch-name: ${{ steps.get-branch-name.outputs.branch-name }}
+      output1: ${{ steps.build-push
     steps:
 
     # - name: Environment check
@@ -79,13 +80,13 @@ jobs:
     #     push: true
     #     tags: ${{ secrets.IMAGE_REGISTRY }}/${{ env.COMPONENT_NAME }}:${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}
 
-    - name: Build and push
+    - name: build-push
       if: ${{ inputs.value }}
       run: | 
        echo "tags: ${{ inputs.value }}"
     
-    - name: Build2 and push2
-      if: cancelled()
+    - name: build2-push2
+      if: steps.build-push.outcome != 'success'
       run: | 
        echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
