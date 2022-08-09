@@ -85,7 +85,7 @@ jobs:
        echo "tags: ${{ inputs.value }}"
     
     - name: Build2 and push2
-      if: failure()
+      if: ${{ inputs.value }} != string
       run: | 
        echo "tags: ${{ github.event.inputs.target-env }}-${{ steps.get-branch-name.outputs.branch-name }}-${{ github.run_number }}"
 
