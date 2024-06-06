@@ -1,0 +1,60 @@
+name: Delete Branches 
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  Branch-delete:
+    runs-on: ubuntu-latest
+    steps:
+    # Logs in with your Azure credentials
+    - name: Get Secrets
+      run: |
+          # Configuration
+          REPO_OWNER="github-actions"
+          REPO_NAME="kubetest"
+          GITHUB_TOKEN="{{ secrets.GITHUB_TOKEN }}"
+          
+          # Function to check if a branch should be preserved
+          should_preserve_branch() {
+              local branch=$1
+              [[ "$branch" == "main" || "$branch" == "dev" || "$branch" =~ ^release ]]
+          }
+          
+          # Function to get the last commit date of a branch
+          get_branch_last_commit_date() {
+              local branch=$1
+              local api_url="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/branches/$branch"
+              local last_commit_date=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$api_url" | jq -r '.commit.commit.author.date')
+              echo "$last_commit_date"
+          }
+          
+          # Get current date
+          current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Fetch all branches
+          branches=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/branches" | jq -r '.[].name')
+          
+          for branch in $branches; do
+              if should_preserve_branch "$branch"; then
+                  echo "Preserving branch: $branch"
+                  continue
+              fi
+          
+              last_commit_date=$(get_branch_last_commit_date "$branch")
+              if [[ -z "$last_commit_date" ]]; then
+                  echo "Failed to get last commit date for branch: $branch"
+                  continue
+              fi
+          
+              last_commit_timestamp=$(date -d "$last_commit_date" +%s)
+              current_timestamp=$(date -d "$current_date" +%s)
+              days_difference=$(( (current_timestamp - last_commit_timestamp) / 86400 ))
+          
+              if (( days_difference > 90 )); then
+                  echo "Deleting branch: $branch (Last commit: $last_commit_date, $days_difference days old)"
+                  curl -X DELETE -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/git/refs/heads/$branch"
+              else
+                  echo "Branch $branch is $days_difference days old, not deleting."
+    fi
+done
