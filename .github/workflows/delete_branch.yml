@@ -56,5 +56,5 @@ jobs:
                   curl -X DELETE -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/git/refs/heads/$branch"
               else
                   echo "Branch $branch is $days_difference days old, not deleting."
-    fi
-done
+              fi
+          done
