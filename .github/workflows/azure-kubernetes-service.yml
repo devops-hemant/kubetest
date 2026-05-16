@@ -8,7 +8,7 @@ jobs:
   databricks-deploy:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/devops-hemant/declis:v0.0.2
+      image: ghcr.io/devops-hemant/declis:v0.0.3
     steps:
       - name: Verify tools
         run: |
