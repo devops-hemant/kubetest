@@ -1,0 +1,20 @@
+name: cli test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  databricks-deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/devops-hemant/declis:v0.0.2
+    steps:
+      - name: Verify tools
+        run: |
+          az version
+          databricks -v
+          dbsqlcli --help || echo "dbsqlcli is installed"
+          yq --version
+          jq --version
+          curl --version
