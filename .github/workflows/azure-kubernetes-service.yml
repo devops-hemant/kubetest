@@ -18,3 +18,4 @@ jobs:
           yq --version
           jq --version
           curl --version
+          gh --version
